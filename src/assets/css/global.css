@@ -1,0 +1,32 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+ul,
+ol,
+dl,
+p {
+  padding: 0;
+  margin: 0;
+}
+body,
+html {
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+textarea {
+  resize: none !important;
+}
+.main-enter-active,
+.main-leave-active {
+  transition: opacity 0.3s;
+}
+.main-enter,
+.main-leave-active {
+  opacity: 0;
+}
+#nprogress .bar {
+  background: #c3f909 !important;
+}
