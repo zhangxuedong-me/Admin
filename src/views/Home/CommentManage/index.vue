@@ -6,39 +6,38 @@
 
 <script>
 export default {
-    name: 'comment_manage',
-    props: {
+  name: 'comment_manage',
+  props: {
 
-    },
-    data() {
-        return {
+  },
+  data () {
+    return {
 
-        };
-    },
-    computed: {
-
-    },
-    created() {
-
-    },
-    mounted() {
-
-    },
-    watch: {
-
-    },
-    methods: {
-
-    },
-    components: {
-
-    },
-    beforeRouteEnter (to, from, next) {
-        next(vm => {
-            
-           vm.$store.commit('ADD_CACHE', to.name)
-        })
     }
+  },
+  computed: {
+
+  },
+  created () {
+
+  },
+  mounted () {
+
+  },
+  watch: {
+
+  },
+  methods: {
+
+  },
+  components: {
+
+  },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.$store.commit('ADD_CACHE', to.name)
+    })
+  }
 }
 </script>
 

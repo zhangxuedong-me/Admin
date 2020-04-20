@@ -107,230 +107,208 @@
 </template>
 
 <script>
-import { 
-    getClassificationData,
-    editArticleDetail,
-    editArticle
+import {
+  getClassificationData,
+  editArticleDetail,
+  editArticle
 } from '@/api/articles'
 export default {
-    name: 'edit_article',
-    props: {
+  name: 'edit_article',
+  props: {
 
-    },
-    data() {
-        return {
+  },
+  data () {
+    return {
 
-            // 文章数据
-            article: {
-                article_title: '',
-                publish_time: '',
-                selectVal: '',
-                article_auther: this.$store.getters.getuserInfo.username,
-                article_keyword: '',
-                content: '',
-                article_describe: '',
-                status: 0,
-                id: this.$store.getters.getuserInfo.id,
-                isProhibit: true
-            },
+      // 文章数据
+      article: {
+        article_title: '',
+        publish_time: '',
+        selectVal: '',
+        article_auther: this.$store.getters.getuserInfo.username,
+        article_keyword: '',
+        content: '',
+        article_describe: '',
+        status: 0,
+        id: this.$store.getters.getuserInfo.id,
+        isProhibit: true
+      },
 
-            // 文章修改提交的验证
-            articleRules: {
-                article_title: [
-                    {
-                        required: true,
-                        message: '文章标题不能为空',
-                        trigger: 'blur'
-                    },
-                    {
-                        max: 10,
-                        message: "文章标题不能超过10个字符",
-                        trigger: 'blur'
-                    }
-                ],
-            },
+      // 文章修改提交的验证
+      articleRules: {
+        article_title: [
+          {
+            required: true,
+            message: '文章标题不能为空',
+            trigger: 'blur'
+          },
+          {
+            max: 10,
+            message: '文章标题不能超过10个字符',
+            trigger: 'blur'
+          }
+        ]
+      },
 
-            // 日期的配置
-            pickerOptions: {
-                shortcuts: [{
-                    text: '今天',
-                    onClick(picker) {
-                    picker.$emit('pick', new Date());
-                    }
-                }, {
-                    text: '昨天',
-                    onClick(picker) {
-                    const date = new Date();
-                    date.setTime(date.getTime() - 3600 * 1000 * 24);
-                    picker.$emit('pick', date);
-                    }
-                }, {
-                    text: '一周前',
-                    onClick(picker) {
-                    const date = new Date();
-                    date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
-                    picker.$emit('pick', date);
-                    }
-                }]
-            },
+      // 日期的配置
+      pickerOptions: {
+        shortcuts: [{
+          text: '今天',
+          onClick (picker) {
+            picker.$emit('pick', new Date())
+          }
+        }, {
+          text: '昨天',
+          onClick (picker) {
+            const date = new Date()
+            date.setTime(date.getTime() - 3600 * 1000 * 24)
+            picker.$emit('pick', date)
+          }
+        }, {
+          text: '一周前',
+          onClick (picker) {
+            const date = new Date()
+            date.setTime(date.getTime() - 3600 * 1000 * 24 * 7)
+            picker.$emit('pick', date)
+          }
+        }]
+      },
 
-            // 错误边框的显示状态
-            isBorderShow: false,
+      // 错误边框的显示状态
+      isBorderShow: false,
 
-            // 富文本框的显示状态
-            isLoadShow: false,
+      // 富文本框的显示状态
+      isLoadShow: false,
 
-            // 定时器的变量
-            timeId: null,
+      // 定时器的变量
+      timeId: null,
 
-            // 文章分类的数据
-            artcileClass: []
+      // 文章分类的数据
+      artcileClass: []
+    }
+  },
+  computed: {
+
+  },
+  created () {
+    this.getClassificationData()
+    this.getEditArticleDetail()
+  },
+  methods: {
+
+    // 跳转到文章管理页面
+    toArticlePage () {
+      // 修改成功之后应该跳转到文章管理页面
+      const { navBarArr } = this.$store.state.navBars
+
+      navBarArr.forEach((item, index) => {
+        // 判断找出编辑文章的导航栏数据，然后删除掉，重新存储
+        if (item.path === `/${this.$route.name}`) {
+          navBarArr.splice(index, 1)
+
+          this.$store.commit('SET_USERNAVBAR', ...navBarArr)
+
+          this.$router.replace('/articles_manage')
         }
+      })
     },
-    computed: {
 
-    },
-    created() {
+    // 保存或者取消
+    async keepAndCancel (flag) {
+      // 如果点击的是取消的话，跳转到文章管理页面
+      if (!flag) {
+        this.toArticlePage()
+        return
+      }
 
-        this.getClassificationData()
-        this.getEditArticleDetail()
-    },
-    methods: {
+      const loading = this.$loading(this.$store.state.loading)
 
-        // 跳转到文章管理页面
-        toArticlePage () {
-            
-            // 修改成功之后应该跳转到文章管理页面
-            const { navBarArr } = this.$store.state.navBars
+      try {
+        const isOk = await this.$refs.myForm.validate()
 
-                navBarArr.forEach((item, index) => {
+        // 文本框的验证
+        this.isBorderShow = !this.article.content
 
-                    // 判断找出编辑文章的导航栏数据，然后删除掉，重新存储
-                   if (item.path === `/${this.$route.name}`) {
+        // 全部验证通过发送请求
+        if (!this.isBorderShow) {
+          const { data } = await editArticle(this.article)
 
-                        navBarArr.splice(index, 1)
+          if (data.code === 200) {
+            this.$message.success(data.message)
 
-                        this.$store.commit('SET_USERNAVBAR', ...navBarArr)
+            this.toArticlePage()
 
-                        this.$router.replace('/articles_manage')
-                       return
-                   }
-            })
-        },
-
-        // 保存或者取消
-        async keepAndCancel (flag) {
-
-            // 如果点击的是取消的话，跳转到文章管理页面
-            if (!flag) {
-
-               this.toArticlePage()
-               return
-            }
-
-            const loading = this.$loading(this.$store.state.loading)
-
-            try {
-
-                const isOk = await this.$refs.myForm.validate()
-
-                // 文本框的验证
-                this.isBorderShow = !this.article.content
-
-                // 全部验证通过发送请求
-                if (!this.isBorderShow) {
-                    
-                    const { data } = await editArticle(this.article)
-
-                    if (data.code === 200) {
-                        
-                        this.$message.success(data.message)
-
-                        this.toArticlePage()
-
-                        /*
+            /*
                             告诉文章管理页面，删除文章管理页面的缓存，不然无法看到最新
                             发表的文章数据
                         */
-                        this.$event.$emit('removeArticle')
-                    }
+            this.$event.$emit('removeArticle')
+          }
 
-                    return
-                }
-
-                // 验证都不通过提示去填写用户信息
-                this.$message.warning('请填写文章信息')
-
-
-            } catch (error) {
-
-                if (error === false) {
-
-                    this.isBorderShow = !this.article.content
-
-                    this.isBorderShow ? this.$message.warning('请填写文章信息') : ''
-
-                    return
-                }
-
-            } finally {
-
-                loading.close()
-            }
-        },
-
-        // 获取文章分类的数据
-        async getClassificationData () {
-
-            const { data } = await getClassificationData({
-
-                id: this.$store.getters.getuserInfo.id
-            })
-            
-            this.artcileClass = data.data
-        },
-
-        // 获取要修改的文章
-        async getEditArticleDetail () {
-
-            const { data } = await editArticleDetail({
-
-                detailId: this.$route.params.id
-            })
-
-            if (data.code !== 200) return
-
-            this.article = data.data
+          return
         }
-    },
-    watch: {
 
-    },
-    mounted () {
+        // 验证都不通过提示去填写用户信息
+        this.$message.warning('请填写文章信息')
+      } catch (error) {
+        if (error === false) {
+          this.isBorderShow = !this.article.content
 
-        this.$event.$on('removePage', () => {
-            
-            this.$store.commit('REMOVE_CACHE', 'edit_article')
-        })
+          this.isBorderShow ? this.$message.warning('请填写文章信息') : ''
 
-        this.timeId = setTimeout(() => {
-            
-            this.isLoadShow = true
-        }, 330)
+          return
+        }
+      } finally {
+        loading.close()
+      }
     },
-    components: {
 
+    // 获取文章分类的数据
+    async getClassificationData () {
+      const { data } = await getClassificationData({
+
+        id: this.$store.getters.getuserInfo.id
+      })
+
+      this.artcileClass = data.data
     },
-    destroyed () {
-        clearTimeout(this.timeId)
-        this.timeId = null
-    },
-    beforeRouteEnter (to, from, next) {
-        next(vm => {
-            
-           vm.$store.commit('ADD_CACHE', to.name)
-        })
+
+    // 获取要修改的文章
+    async getEditArticleDetail () {
+      const { data } = await editArticleDetail({
+
+        detailId: this.$route.params.id
+      })
+
+      if (data.code !== 200) return
+
+      this.article = data.data
     }
+  },
+  watch: {
+
+  },
+  mounted () {
+    this.$event.$on('removePage', () => {
+      this.$store.commit('REMOVE_CACHE', 'edit_article')
+    })
+
+    this.timeId = setTimeout(() => {
+      this.isLoadShow = true
+    }, 330)
+  },
+  components: {
+
+  },
+  destroyed () {
+    clearTimeout(this.timeId)
+    this.timeId = null
+  },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.$store.commit('ADD_CACHE', to.name)
+    })
+  }
 }
 </script>
 
@@ -359,7 +337,7 @@ export default {
                     }
                 }
             }
-           
+
         }
     }
 }

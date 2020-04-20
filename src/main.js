@@ -31,12 +31,18 @@ import 'element-ui/lib/theme-chalk/index.css'
 
 // 全局注册所有的过滤器
 import filterRegister from './utils/filterRegister'
-for (let key in filterRegister) {
-  Vue.filter(key, filterRegister[key])
-}
 
 // 引入图片懒加载
 import VueLazyload from 'vue-lazyload'
+
+// 使用echarts
+import echarts from 'echarts'
+
+// 滚动条的css样式
+import 'vue-happy-scroll/docs/happy-scroll.css'
+for (const key in filterRegister) {
+  Vue.filter(key, filterRegister[key])
+}
 
 // 图片的懒加载的配置
 Vue.use(VueLazyload, {
@@ -48,13 +54,7 @@ Vue.use(VueLazyload, {
   // 尝试加载一次
   attempt: 1
 })
-
-// 使用echarts
-import echarts from 'echarts'
 Vue.prototype.$echarts = echarts
-
-// 滚动条的css样式
-import 'vue-happy-scroll/docs/happy-scroll.css'
 Vue.config.productionTip = false
 
 new Vue({

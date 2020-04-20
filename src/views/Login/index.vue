@@ -24,76 +24,68 @@
 <script>
 import { getLoginImg } from '@/api/user'
 export default {
-    name: 'Login',
-    props: {
+  name: 'Login',
+  props: {
 
-    },
-    data() {
-        return {
-           loadding: false,
-           headImgData: {},
-           defaultImg: require('../../assets/images/jiazai.gif')
-        }
-    },
-    computed: {
-
-    },
-    created() {
-
-    },
-    mounted() {
-
-    },
-    watch: {
-
-    },
-    methods: {
-        async userLogin (userInfo, form, loadding) {
-            
-            // 开启按钮加载
-            this.loadding = true
-            // 开启页面加载
-            const loading = this.$loading(this.$store.state.loading)
-
-            try {
-
-                // 表单验证通过
-                const isOk = await form.validate()
-                // 发送登陆请求
-                const res = await this.$store.dispatch('userLogin', userInfo)
-                
-                // 根据登陆成功与否做出相应的处理
-                if (res.code === 200) {
-
-                    this.$message.success(res.message)
-                    this.$router.replace('/first_page')
-                    return
-                }
-                
-                this.$message.warning(res.message)
-
-            } catch (error) {
-
-                this.$message.warning('请填写用户名或者密码')
-               
-            } finally {
-
-                // 无论登陆成功与否，加载状态必须关闭
-                this.loadding = false
-                loading.close()
-            }
-        },
-
-        // 获取用户头像
-        async userBlur (username) {
-
-            const { data } = await getLoginImg({ username })
-            this.headImgData = data.data
-        }
-    },
-    components: {
-
+  },
+  data () {
+    return {
+      loadding: false,
+      headImgData: {},
+      defaultImg: require('../../assets/images/jiazai.gif')
     }
+  },
+  computed: {
+
+  },
+  created () {
+    
+  },
+  mounted () {
+
+  },
+  watch: {
+
+  },
+  methods: {
+    async userLogin (userInfo, form, loadding) {
+      // 开启按钮加载
+      this.loadding = true
+      // 开启页面加载
+      const loading = this.$loading(this.$store.state.loading)
+
+      try {
+        // 表单验证通过
+        const isOk = await form.validate()
+        // 发送登陆请求
+        const res = await this.$store.dispatch('userLogin', userInfo)
+
+        // 根据登陆成功与否做出相应的处理
+        if (res.code === 200) {
+          this.$message.success(res.message)
+          this.$router.replace('/first_page')
+          return
+        }
+
+        this.$message.warning(res.message)
+      } catch (error) {
+        this.$message.warning('请填写用户名或者密码')
+      } finally {
+        // 无论登陆成功与否，加载状态必须关闭
+        this.loadding = false
+        loading.close()
+      }
+    },
+
+    // 获取用户头像
+    async userBlur (username) {
+      const { data } = await getLoginImg({ username })
+      this.headImgData = data.data
+    }
+  },
+  components: {
+
+  }
 }
 </script>
 
@@ -115,7 +107,7 @@ export default {
                 width: 100%;
                 height: 100%;
                 border-radius: 50%;
-                
+
             }
         }
     }

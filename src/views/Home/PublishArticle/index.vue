@@ -146,23 +146,23 @@ import {
   articlesClassification,
   getClassificationData,
   publishArticle
-} from "@/api/articles.js"
+} from '@/api/articles.js'
 
 export default {
 
-  name: "publish_article",
+  name: 'publish_article',
   props: {},
-  data() {
+  data () {
     return {
       // 发表文章像后端提交的数据
       article: {
-        article_title: "",
-        publish_time: "",
-        selectVal: "",
+        article_title: '',
+        publish_time: '',
+        selectVal: '',
         article_auther: this.$store.getters.getuserInfo.username,
-        article_keyword: "",
-        article_describe: "",
-        content: "",
+        article_keyword: '',
+        article_describe: '',
+        content: '',
         status: 0,
         id: this.$store.getters.getuserInfo.id,
         isProhibit: true
@@ -171,8 +171,8 @@ export default {
       // 新建分类提交的数据
       classification: {
         username: this.$store.getters.getuserInfo.username,
-        name: "",
-        describe: "",
+        name: '',
+        describe: '',
         id: this.$store.getters.getuserInfo.id
       },
 
@@ -183,25 +183,25 @@ export default {
       pickerOptions: {
         shortcuts: [
           {
-            text: "今天",
-            onClick(picker) {
-              picker.$emit("pick", new Date())
+            text: '今天',
+            onClick (picker) {
+              picker.$emit('pick', new Date())
             }
           },
           {
-            text: "昨天",
-            onClick(picker) {
+            text: '昨天',
+            onClick (picker) {
               const date = new Date()
               date.setTime(date.getTime() - 3600 * 1000 * 24)
-              picker.$emit("pick", date)
+              picker.$emit('pick', date)
             }
           },
           {
-            text: "一周前",
-            onClick(picker) {
+            text: '一周前',
+            onClick (picker) {
               const date = new Date()
               date.setTime(date.getTime() - 3600 * 1000 * 24 * 7)
-              picker.$emit("pick", date)
+              picker.$emit('pick', date)
             }
           }
         ]
@@ -212,13 +212,13 @@ export default {
         name: [
           {
             required: true,
-            message: "请输入分类名",
-            trigger: "blur"
+            message: '请输入分类名',
+            trigger: 'blur'
           },
           {
             max: 10,
-            message: "最长不能超过10个",
-            trigger: "blur"
+            message: '最长不能超过10个',
+            trigger: 'blur'
           }
         ]
       },
@@ -228,13 +228,13 @@ export default {
         article_title: [
           {
             required: true,
-            message: "文章标题不能为空",
-            trigger: "blur"
+            message: '文章标题不能为空',
+            trigger: 'blur'
           },
           {
             max: 10,
-            message: "文章标题不能超过10个字符",
-            trigger: "blur"
+            message: '文章标题不能超过10个字符',
+            trigger: 'blur'
           }
         ]
       },
@@ -254,35 +254,28 @@ export default {
   },
   computed: {},
 
-  created() {
-
+  created () {
     this.getClassification()
   },
-  mounted() {
-
+  mounted () {
     this.timeId = setTimeout(() => {
-
       this.isLoadShow = true
-
-    }, 330);
+    }, 330)
   },
   watch: {},
   methods: {
 
     // 点击确定创建分类
-    async setSubmit() {
-
+    async setSubmit () {
       const loading = this.$loading(this.$store.state.loading)
 
       try {
-
         // 验证通过发送请求
         const isOk = await this.$refs.form.validate()
         const { data } = await articlesClassification(this.classification)
 
         // 200就是创建成功，否则就是有重复的项
         if (data.code === 200) {
-
           this.$message.success(data.message)
 
           this.dialogVisible = false
@@ -295,60 +288,49 @@ export default {
           this.$event.$emit('removeArticle')
 
           this.$event.$emit('removePage')
-
         } else {
-          
           this.$message.warning(data.message)
-
         }
       } catch (error) {
-
         if (error === false) {
-
           this.$message.warning('分类名称不能为空哦!')
         }
-        
       } finally {
-
         // 必须执行的代码
         this.classification = {
           username: this.$store.getters.getuserInfo.username,
-          name: "",
-          describe: "",
+          name: '',
+          describe: '',
           id: this.$store.getters.getuserInfo.id
         }
 
         loading.close()
       }
-
     },
 
     // 获取创建的分类
-    async getClassification() {
+    async getClassification () {
+      const { data } = await getClassificationData({
+        id: this.classification.id
+      })
 
-        const { data } = await getClassificationData({
-          id: this.classification.id
-        })
+      if (data.code !== 200) return
 
-        if (data.code !== 200) return
-
-        this.classificationData = data.data
+      this.classificationData = data.data
     },
 
     // 取消的处理
-    cancel(status) {
-      
+    cancel (status) {
       this.dialogVisible = false
       this.classification = {
-        name: "",
-        describe: "",
+        name: '',
+        describe: '',
         id: this.$store.getters.getuserInfo.id
       }
     },
 
     // 点击之后发表文章或者保存文章
-    async publishArticleAndDraft(status) {
-
+    async publishArticleAndDraft (status) {
       /*
         status 如果是true的话就是发表文章，false就是存为草稿
         this.article.status为0是全部文章，为1是草稿
@@ -359,7 +341,6 @@ export default {
       const loading = this.$loading(this.$store.state.loading)
 
       try {
-
         const isOk = await this.$refs.myForm.validate()
 
         this.isBorderShow = !this.article.content
@@ -371,46 +352,39 @@ export default {
 
           this.$message.success(data.message)
 
-          this.$router.replace("/articles_manage")
+          this.$router.replace('/articles_manage')
 
           // 发布事件通知文章管理页面删除自己的缓存，否则看不到当前发表的文章
-          this.$event.$emit("removeArticle")
+          this.$event.$emit('removeArticle')
 
           // 并且删除当前页面的缓存，否则下次进来还是缓存上一次的内容
-          this.$store.commit("REMOVE_CACHE", "publish_article")
-
+          this.$store.commit('REMOVE_CACHE', 'publish_article')
         } else {
-
           this.$message.warning('请填写文章的信息')
         }
-
       } catch (error) {
-
         this.isBorderShow = !this.article.content
 
-        error === false ?  this.$message.warning('请填写文章的信息') : ''
-
+        error === false ? this.$message.warning('请填写文章的信息') : ''
       } finally {
-
         loading.close()
       }
     }
   },
   components: {},
 
-  destroyed() {
+  destroyed () {
     clearTimeout(this.timeId)
     this.timeId = null
   },
 
-  beforeRouteEnter(to, from, next) {
+  beforeRouteEnter (to, from, next) {
     next(vm => {
-
       // 需要换成的页面
-      vm.$store.commit("ADD_CACHE", to.name)
+      vm.$store.commit('ADD_CACHE', to.name)
     })
   }
-};
+}
 </script>
 
 <style scoped lang="less">
@@ -515,7 +489,7 @@ export default {
               resize: none;
             }
           }
-         
+
         }
       }
     }

@@ -55,97 +55,96 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 
-import { quillEditor, Quill } from "vue-quill-editor"
+import { quillEditor, Quill } from 'vue-quill-editor'
 
 // 自定义字体大小
-let Size = Quill.import("attributors/style/size")
+const Size = Quill.import('attributors/style/size')
 Size.whitelist = [
-  "10px",
-  "12px",
-  "14px",
-  "16px",
-  "18px",
-  "20px",
-  "22px",
-  "24px",
-  "50px"
+  '10px',
+  '12px',
+  '14px',
+  '16px',
+  '18px',
+  '20px',
+  '22px',
+  '24px',
+  '50px'
 ]
 Quill.register(Size, true)
 
 // 自定义字体类型
-let fonts = [
-  "SimSun",
-  "SimHei",
-  "Microsoft-YaHei",
-  "KaiTi",
-  "FangSong",
-  "Arial",
-  "Times-New-Roman",
-  "sans-serif",
-  "宋体",
-  "黑体"
+const fonts = [
+  'SimSun',
+  'SimHei',
+  'Microsoft-YaHei',
+  'KaiTi',
+  'FangSong',
+  'Arial',
+  'Times-New-Roman',
+  'sans-serif',
+  '宋体',
+  '黑体'
 ]
 
-let Font = Quill.import("formats/font")
+const Font = Quill.import('formats/font')
 Font.whitelist = fonts
 Quill.register(Font, true)
 
 export default {
-  name: "EditorQuill",
+  name: 'EditorQuill',
   props: {
-      isBorderShow: {
-          type: Boolean,
-          required: true
-      },
-      value: {
-          type: String
-      }
+    isBorderShow: {
+      type: Boolean,
+      required: true
+    },
+    value: {
+      type: String
+    }
   },
-  data() {
+  data () {
     return {
       // 富文本编辑器的配置
       editorOption: {
-        placeholder: "请输入文章内容",
-        theme: "snow",
+        placeholder: '请输入文章内容',
+        theme: 'snow',
         modules: {
           toolbar: {
-            container: "#toolbar"
+            container: '#toolbar'
           }
         }
       },
 
       fontSize: [
-        "10px",
-        "12px",
-        "14px",
-        "16px",
-        "18px",
-        "20px",
-        "22px",
-        "24px",
-        "50px"
+        '10px',
+        '12px',
+        '14px',
+        '16px',
+        '18px',
+        '20px',
+        '22px',
+        '24px',
+        '50px'
       ],
-      title: ["h1", "h2", "h3", "h4", "h5", "h6"]
+      title: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']
     }
-    
   },
   computed: {
-     
+
   },
-  created() {
-      
+  created () {
+
   },
   methods: {
 
   },
   watch: {},
-  mounted() {
+  mounted () {
 
   },
   components: {
-      quillEditor
+    quillEditor
   }
-};
+}
 </script>
 
 <style scoped lang="less">

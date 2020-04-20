@@ -6,10 +6,10 @@ module.exports = {
     [
       'component',
       {
-        'libraryName': 'element-ui',
-        'styleLibraryName': 'theme-chalk'
+        libraryName: 'element-ui',
+        styleLibraryName: 'theme-chalk'
       }
     ],
-    "syntax-dynamic-import"
+    'syntax-dynamic-import'
   ]
 }

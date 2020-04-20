@@ -20,108 +20,104 @@
 
 <script>
 export default {
-    name: 'first_page',
-    props: {
+  name: 'first_page',
+  props: {
 
-    },
-    data() {
-        return {
+  },
+  data () {
+    return {
 
-        }
-    },
-    computed: {
-
-    },
-    created() {
-        
-    },
-    mounted() {
-         
-        this.articles()
-
-        this.comment()
-        
-    },
-    watch: {
-
-    },
-    methods: {
-        articles () {
-            let myChart = this.$echarts.init(this.$refs.articles)
-            myChart.setOption({
-                title: {
-                    text: '分类热门文章统计',
-                    subtext: '总数',
-                    left: 'center'
-                },
-                tooltip: {
-                    trigger: 'item',
-                    formatter: '{a} <br/>{b} : {c} ({d}%)'
-                },
-                legend: {
-                    orient: 'vertical',
-                    left: 'left',
-                    data: ['html', 'css', 'javascript', 'jquery', 'ajax', 'node', 'vue']
-                },
-                series: [
-                    {
-                        name: '热门推荐',
-                        type: 'pie',
-                        radius: '55%',
-                        center: ['50%', '60%'],
-                        data: [
-                            {value: 335, name: 'Html热门文章'},
-                            {value: 310, name: 'css热门文章'},
-                            {value: 234, name: 'javascript热门文章'},
-                            {value: 135, name: 'jquery热门文章'},
-                            {value: 1548, name: 'ajax热门文章'},
-                            {value: 200, name: 'node热门文章'},
-                            {value: 189, name: 'vue热门文章'}
-                        ],
-                        emphasis: {
-                            itemStyle: {
-                                shadowBlur: 10,
-                                shadowOffsetX: 0,
-                                shadowColor: 'rgba(0, 0, 0, 0.5)'
-                            }
-                        }
-                    }
-                ]
-            })
-        },
-        comment () {
-            let myChart2 = this.$echarts.init(this.$refs.comment)
-            myChart2.setOption({
-                tooltip: {
-                    formatter: '{a} <br/>{b} : {c}%'
-                },
-                toolbox: {
-                    feature: {
-                        restore: {},
-                        saveAsImage: {}
-                    }
-                },
-                series: [
-                    {
-                        name: '评论数量',
-                        type: 'gauge',
-                        detail: {formatter: '{value}%'},
-                        data: [{value: 50, name: '完成率'}]
-                    }
-                ]
-            })
-        }
-    },
-    components: {
-        
-    },
-    beforeRouteEnter (to, from, next) {
-
-        next(vm => {
-            
-            vm.$store.commit('ADD_CACHE', to.name)
-        })
     }
+  },
+  computed: {
+
+  },
+  created () {
+    
+  },
+  mounted () {
+    this.articles()
+
+    this.comment()
+  },
+  watch: {
+
+  },
+  methods: {
+    articles () {
+      const myChart = this.$echarts.init(this.$refs.articles)
+      myChart.setOption({
+        title: {
+          text: '分类热门文章统计',
+          subtext: '总数',
+          left: 'center'
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '{a} <br/>{b} : {c} ({d}%)'
+        },
+        legend: {
+          orient: 'vertical',
+          left: 'left',
+          data: ['html', 'css', 'javascript', 'jquery', 'ajax', 'node', 'vue']
+        },
+        series: [
+          {
+            name: '热门推荐',
+            type: 'pie',
+            radius: '55%',
+            center: ['50%', '60%'],
+            data: [
+              { value: 335, name: 'Html热门文章' },
+              { value: 310, name: 'css热门文章' },
+              { value: 234, name: 'javascript热门文章' },
+              { value: 135, name: 'jquery热门文章' },
+              { value: 1548, name: 'ajax热门文章' },
+              { value: 200, name: 'node热门文章' },
+              { value: 189, name: 'vue热门文章' }
+            ],
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            }
+          }
+        ]
+      })
+    },
+    comment () {
+      const myChart2 = this.$echarts.init(this.$refs.comment)
+      myChart2.setOption({
+        tooltip: {
+          formatter: '{a} <br/>{b} : {c}%'
+        },
+        toolbox: {
+          feature: {
+            restore: {},
+            saveAsImage: {}
+          }
+        },
+        series: [
+          {
+            name: '评论数量',
+            type: 'gauge',
+            detail: { formatter: '{value}%' },
+            data: [{ value: 50, name: '完成率' }]
+          }
+        ]
+      })
+    }
+  },
+  components: {
+
+  },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.$store.commit('ADD_CACHE', to.name)
+    })
+  }
 }
 </script>
 
@@ -171,6 +167,6 @@ export default {
         }
     }
     h1:last-of-type {
-        
+
     }
 </style>

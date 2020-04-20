@@ -6,32 +6,32 @@
 
 <script>
 export default {
-    props: {
+  props: {
 
-    },
-    data() {
-        return {
+  },
+  data () {
+    return {
 
-        };
-    },
-    computed: {
+    }
+  },
+  computed: {
 
-    },
-    created() {
+  },
+  created () {
 
-    },
-    mounted() {
+  },
+  mounted () {
 
-    },
-    watch: {
+  },
+  watch: {
 
-    },
-    methods: {
+  },
+  methods: {
 
-    },
-    components: {
+  },
+  components: {
 
-    },
+  }
 }
 </script>
 

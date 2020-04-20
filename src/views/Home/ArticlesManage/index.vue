@@ -57,7 +57,7 @@
                 <span class="total_page">
                     {{ articleResult ? articleResult.length : 0 }}
                 </span>
-                <span>条 记 录</span> 
+                <span>条 记 录</span>
             </div>
             <el-table
                 :data="articleResult | statusFilter"
@@ -143,217 +143,189 @@
 
 <script>
 import {
-    getArticleData,
-    getClassificationData,
-    deleteArticle,
-    prohibitAndRecovery
+  getArticleData,
+  getClassificationData,
+  deleteArticle,
+  prohibitAndRecovery
 
-}  from '@/api/articles.js'
+} from '@/api/articles.js'
 export default {
-    name: 'articles_manage',
-    props: {
+  name: 'articles_manage',
+  props: {
 
-    },
-    data() {
-        return {
+  },
+  data () {
+    return {
 
-            // 搜索项的数据
-            article: {
-                status: 0,
-                publish_time: [],
-                selectVal: '',
-                article_keyword: '',
-                id: this.$store.getters.getuserInfo.id,
-                count: 6,
-                page: 1,
-            },
-            articleResult: [],
+      // 搜索项的数据
+      article: {
+        status: 0,
+        publish_time: [],
+        selectVal: '',
+        article_keyword: '',
+        id: this.$store.getters.getuserInfo.id,
+        count: 6,
+        page: 1
+      },
+      articleResult: [],
 
-            articleData: {},
+      articleData: {},
 
-            classData: [],
+      classData: [],
 
-            startHttp: true,
+      startHttp: true,
 
-            msg: ''
+      msg: ''
+    }
+  },
+  beforeCreate () {
+    this.$notify({
+
+      title: '尊敬的用户您好',
+      message: '请谨慎操作，以免造成不必要的损失!',
+      type: 'warning'
+    })
+  },
+  methods: {
+
+    // 获取相关条件的文章
+    async searchBtn (flag) {
+      // 如果搜索条件变化了再去发送请求
+      if (!this.startHttp) {
+        this.$message.success(this.msg)
+        return
+      }
+
+      // 文章的加载状态
+      const loading = this.$loading(this.$store.state.loading)
+
+      try {
+        // 搜索文章的请求
+        const { data } = await getArticleData(this.article)
+
+        this.msg = data.message
+
+        // 如果点击的是搜索按钮的话，将页数重置为第一页
+        if (flag) {
+          this.article.page = 1
+          this.$message.success(data.message)
         }
+
+        this.startHttp = false
+
+        this.articleData = data
+        this.articleResult = data.data
+      } finally {
+        loading.close()
+      }
     },
-    beforeCreate () {
-        this.$notify({
-            
-          title: '尊敬的用户您好',
-          message: '请谨慎操作，以免造成不必要的损失!',
+
+    // 获取文章分类接口数据
+    async getClassData () {
+      const { data } = await getClassificationData({ id: 1 })
+
+      this.classData = data.data
+    },
+
+    // 点击之后切换页码
+    pageChange (page) {
+      this.article.page = page
+
+      this.searchBtn()
+    },
+
+    // 删除文章
+    async deleteArticle (obj) {
+      try {
+        await this.$confirm.confirm('真的要删除吗，删除之后无法找回？', '提示', {
           type: 'warning'
         })
-    },
-    methods: {
 
-        // 获取相关条件的文章
-        async searchBtn (flag) {
+        const { data } = await deleteArticle({
 
-            // 如果搜索条件变化了再去发送请求
-            if (!this.startHttp) {
-
-                this.$message.success(this.msg)
-                return
-            }
-
-            // 文章的加载状态
-            const loading = this.$loading(this.$store.state.loading)
-            
-            try {
-
-                // 搜索文章的请求
-                const { data } = await getArticleData(this.article)
-
-                this.msg = data.message
-
-                // 如果点击的是搜索按钮的话，将页数重置为第一页
-                if (flag) {
-
-                    this.article.page = 1
-                    this.$message.success(data.message)
-                }
-                
-                this.startHttp = false
-
-                this.articleData = data
-                this.articleResult = data.data
-
-            } finally {
-
-                loading.close()
-            }
-        },
-
-        // 获取文章分类接口数据
-        async getClassData () {
-
-            const { data } = await getClassificationData({ id: 1})
-
-            this.classData = data.data
-        },
-
-        // 点击之后切换页码
-        pageChange (page) {
-
-           this.article.page = page
-
-           this.searchBtn()
-        },
-
-        // 删除文章
-        async deleteArticle (obj) {
-
-            try {
-
-                await this.$confirm.confirm('真的要删除吗，删除之后无法找回？', '提示', {
-                    type: 'warning'
-                })
-
-                const { data } = await deleteArticle({
-
-                    detailId: obj.detailId, 
-                    id: this.$store.getters.getuserInfo.id
-                })
-
-                // 删除成功之后，从对应的文章数据中删除该文章
-                this.articleResult.forEach((item, index) => {
-                    
-                    if (item.detailId === obj.detailId) {
-
-                        this.articleResult.splice(index, 1)
-                        return
-                    }
-                })
-
-                this.$message.success(data.message)
-
-                this.article.page = 1
-
-            } catch(error) {
-
-                error === 'cancel' ? this.$message('取消删除') : ''
-                
-            }
-        },
-
-        // 禁止发布文章
-        async prohibitAndRecovery (item) {
-            
-            try {
-
-                await this.$confirm.confirm('真的要操作此文章吗?', '提示', {
-                    type: 'warning'
-                })
-
-                const { data } = await prohibitAndRecovery({ detailId: item.detailId })
-                item.isProhibit = !item.isProhibit
-
-                this.$message.success(data.message)
-
-            } catch (error) {
-                    
-                error === 'cancel' ? this.$message('已取消') : ''
-            }
-        },
-
-        // 编辑文章的事件
-        editArticle (row) {
-
-            // 订阅事件告诉修改文章页面可以销毁了
-
-            this.$event.$emit('removePage')
-
-            this.$router.replace(`/edit_article/${row.detailId}`)
-        }
-        
-    },
-    computed: {
-
-    },
-    created() {
-        this.searchBtn()
-        this.getClassData()
-    },
-    mounted() {
-        
-        this.$event.$on('removeArticle', () => {
-
-            this.$store.commit('REMOVE_CACHE', 'articles_manage')
+          detailId: obj.detailId,
+          id: this.$store.getters.getuserInfo.id
         })
-    },
-    watch: {
 
-        article: {
-
-            handler: function(newVal, oldVal) {
-
-                this.startHttp = true
-
-                // 如果当前页面的数据删除完毕去获取上页数据
-                if (!this.articleResult.length) {
-
-                    if (this.article.page >= 1) {
-
-                        this.searchBtn()
-                    }
-                }
-            },
-
-            deep: true
-        }
-    },
-    components: {
-
-    },
-    beforeRouteEnter (to, from, next) {
-
-        next(vm => {
-            
-            vm.$store.commit('ADD_CACHE', to.name)
+        // 删除成功之后，从对应的文章数据中删除该文章
+        this.articleResult.forEach((item, index) => {
+          if (item.detailId === obj.detailId) {
+            this.articleResult.splice(index, 1)
+          }
         })
-    }  
+
+        this.$message.success(data.message)
+
+        this.article.page = 1
+      } catch (error) {
+        error === 'cancel' ? this.$message('取消删除') : ''
+      }
+    },
+
+    // 禁止发布文章
+    async prohibitAndRecovery (item) {
+      try {
+        await this.$confirm.confirm('真的要操作此文章吗?', '提示', {
+          type: 'warning'
+        })
+
+        const { data } = await prohibitAndRecovery({ detailId: item.detailId })
+        item.isProhibit = !item.isProhibit
+
+        this.$message.success(data.message)
+      } catch (error) {
+        error === 'cancel' ? this.$message('已取消') : ''
+      }
+    },
+
+    // 编辑文章的事件
+    editArticle (row) {
+      // 订阅事件告诉修改文章页面可以销毁了
+
+      this.$event.$emit('removePage')
+
+      this.$router.replace(`/edit_article/${row.detailId}`)
+    }
+
+  },
+  computed: {
+
+  },
+  created () {
+    this.searchBtn()
+    this.getClassData()
+  },
+  mounted () {
+    this.$event.$on('removeArticle', () => {
+      this.$store.commit('REMOVE_CACHE', 'articles_manage')
+    })
+  },
+  watch: {
+
+    article: {
+
+      handler: function (newVal, oldVal) {
+        this.startHttp = true
+
+        // 如果当前页面的数据删除完毕去获取上页数据
+        if (!this.articleResult.length) {
+          if (this.article.page >= 1) {
+            this.searchBtn()
+          }
+        }
+      },
+
+      deep: true
+    }
+  },
+  components: {
+
+  },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.$store.commit('ADD_CACHE', to.name)
+    })
+  }
 }
 </script>
 
@@ -385,7 +357,7 @@ export default {
                             color: #ffffff;
                         }
                     }
-                   
+
                 }
                 .el-input__inner {
                     width: 260px;

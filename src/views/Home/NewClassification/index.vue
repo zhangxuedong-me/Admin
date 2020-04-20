@@ -129,223 +129,193 @@
 <script>
 import { getClassificationData } from '@/api/articles'
 import {
-    deleteClass,
-    getEditClass,
-    keepClass,
-    prohibitAndRecovery
+  deleteClass,
+  getEditClass,
+  keepClass,
+  prohibitAndRecovery
 } from '@/api/admin_class'
 export default {
-    name: 'new_classification',
-    props: {
+  name: 'new_classification',
+  props: {
 
+  },
+  data () {
+    return {
+
+      tableData: [],
+      pages: {
+        currentPage: 1,
+        pageSize: 6
+      },
+      dialogVisible: false,
+      editClassData: {
+        username: this.$store.getters.getuserInfo.username,
+        name: '',
+        describe: '',
+        id: this.$store.getters.getuserInfo.id,
+        detailId: null,
+        isProhibit: null
+      }
+    }
+  },
+  beforeCreate () {
+    this.$notify({
+
+      title: '尊敬的用户您好',
+      message: '请谨慎操作，以免造成不必要的损失!',
+      type: 'warning'
+    })
+  },
+  methods: {
+
+    // 获取分类数据
+    async getClassData () {
+      const { data } = await getClassificationData({
+
+        id: this.$store.getters.getuserInfo.id,
+        ...this.pages
+      })
+
+      this.tableData = data
     },
-    data() {
-        return {
 
-            tableData: [],
-            pages: {
-                currentPage: 1,
-                pageSize: 6
-            },
-            dialogVisible: false,
-            editClassData: {
-                username: this.$store.getters.getuserInfo.username,
-                name: "",
-                describe: "",
-                id: this.$store.getters.getuserInfo.id,
-                detailId: null,
-                isProhibit: null
-            }
-        }
+    // 切换页面
+    pageChange (page) {
+      this.pages.currentPage = page
+
+      this.getClassData()
     },
-    beforeCreate () {
-        this.$notify({
 
-          title: '尊敬的用户您好',
-          message: '请谨慎操作，以免造成不必要的损失!',
-          type: 'warning'
+    // 删除分类
+    async deleteClass (obj) {
+      try {
+        await this.$confirm.confirm('真的要删除该分类吗？，删除之后文章也会丢失', '提示', {
+          type: 'warning',
+          center: true,
+          cancelButtonText: '再想想',
+          confirmButtonText: '删除'
         })
-    },
-    methods: {
 
-        // 获取分类数据
-        async getClassData () {
+        const { data } = await deleteClass({
 
-            const { data } = await getClassificationData({
+          detailId: obj.detailId,
+          name: obj.name
+        })
 
-                id: this.$store.getters.getuserInfo.id,
-                ...this.pages
-            })
+        this.$message.success(data.message)
 
-            this.tableData = data
-        },
+        this.tableData.data.forEach((item, index) => {
+          if (item.detailId === obj.detailId) {
+            this.tableData.data.splice(index, 1)
+          }
+        })
 
-        // 切换页面
-        pageChange (page) {
-
-            this.pages.currentPage = page
+        // 判断一下如果当前页数据删除完毕的话，就去请求上一页的数据
+        if (!this.tableData.data.length) {
+          // 判断一下上一页的如果大于1的话，再执行
+          if (!(this.pages.currentPage - 1 < 1)) {
+            this.pages.currentPage -= 1
 
             this.getClassData()
-        },
-
-        // 删除分类
-        async deleteClass (obj) {
-
-            try {
-
-                await this.$confirm.confirm('真的要删除该分类吗？，删除之后文章也会丢失', '提示', {
-                    type: 'warning',
-                    center: true,
-                    cancelButtonText: '再想想',
-                    confirmButtonText: '删除'
-                })
-                
-                const { data } = await deleteClass({
-
-                    detailId: obj.detailId,
-                    name: obj.name
-                })
-
-                this.$message.success(data.message)
-
-                this.tableData.data.forEach((item, index) => {
-
-                    if (item.detailId === obj.detailId) {
-                    
-                        this.tableData.data.splice(index, 1)
-                        return
-                    }
-                })
-
-                // 判断一下如果当前页数据删除完毕的话，就去请求上一页的数据
-                if (!this.tableData.data.length) {
-
-                    // 判断一下上一页的如果大于1的话，再执行
-                    if (!(this.pages.currentPage - 1 < 1)) {
-                        
-                        this.pages.currentPage -= 1
-
-                        this.getClassData()
-                    }
-                }
-
-                // 删除掉文章管理页面的缓存
-                this.$event.$emit('removeArticle')
-
-            } catch (error) {
-
-                error === 'cancel' ? this.$message.info('已取消删除') : ''
-            }
-        },
-        
-        // 获取要修改的文章
-        async getEditClass (obj) {
-            
-            this.dialogVisible = true
-
-            const { data } = await getEditClass(obj)
-            
-            this.editClassData = data.data
-        },
-
-        // 点击保存条修改后的数据
-        async keepClass () {
-
-            const loading = this.$loading(this.$store.state.loading)
-
-            try {   
-
-                const { data } = await keepClass(this.editClassData)
-
-                this.$message.success(data.message)
-
-                this.tableData.data.forEach((item, index) => {
-
-                    if (item.detailId === this.editClassData.detailId) {
-
-                        this.tableData.data[index] = this.editClassData
-                        return
-                    }
-                })
-
-                this.dialogVisible = false
-                
-            } finally {
-
-                loading.close()
-            }
-        },
-
-        // 禁止或者恢复分类
-        async prohibitAndRecovery (obj) {
-
-            try {
-
-                await this.$confirm.confirm('亲，您确定要操作此分类码!', '提示', {
-                    type: 'warning',
-                    cancelButtonText: '思考一下',
-                    confirmButtonText: '确定'
-                })
-
-                const { data } = await prohibitAndRecovery(obj)
-
-                this.$message.success(data.message)
-
-                obj.isProhibit = !obj.isProhibit
-
-            } catch (error) {
-
-                error === 'cancel' ? this.$message.info('已取消删除') : ''
-
-            }
+          }
         }
 
+        // 删除掉文章管理页面的缓存
+        this.$event.$emit('removeArticle')
+      } catch (error) {
+        error === 'cancel' ? this.$message.info('已取消删除') : ''
+      }
     },
-    created() {
 
-        // 获取分类数据
-        this.getClassData()
+    // 获取要修改的文章
+    async getEditClass (obj) {
+      this.dialogVisible = true
 
-        // 删除当前页面的缓存
-        this.$event.$on('removeClassAdmin', () => {
+      const { data } = await getEditClass(obj)
 
-            this.$store.commit('REMOVE_CACHE', 'new_classification')
+      this.editClassData = data.data
+    },
+
+    // 点击保存条修改后的数据
+    async keepClass () {
+      const loading = this.$loading(this.$store.state.loading)
+
+      try {
+        const { data } = await keepClass(this.editClassData)
+
+        this.$message.success(data.message)
+
+        this.tableData.data.forEach((item, index) => {
+          if (item.detailId === this.editClassData.detailId) {
+            this.tableData.data[index] = this.editClassData
+          }
         })
+
+        this.dialogVisible = false
+      } finally {
+        loading.close()
+      }
     },
-    mounted() {
 
-    },
-    computed: {
-
-        roles () {
-
-            if (this.$store.getters.roles.includes('admin')) {
-
-                return '管理员'
-            }
-
-            return '用户'
-        }
-    },
-    watch: {
-
-    },
-    components: {
-
-    },
-    beforeRouteEnter (to, from, next) {
-
-        next(vm => {
-            
-            vm.$store.commit('ADD_CACHE', to.name)
+    // 禁止或者恢复分类
+    async prohibitAndRecovery (obj) {
+      try {
+        await this.$confirm.confirm('亲，您确定要操作此分类码!', '提示', {
+          type: 'warning',
+          cancelButtonText: '思考一下',
+          confirmButtonText: '确定'
         })
+
+        const { data } = await prohibitAndRecovery(obj)
+
+        this.$message.success(data.message)
+
+        obj.isProhibit = !obj.isProhibit
+      } catch (error) {
+        error === 'cancel' ? this.$message.info('已取消删除') : ''
+      }
     }
+
+  },
+  created () {
+    // 获取分类数据
+    this.getClassData()
+
+    // 删除当前页面的缓存
+    this.$event.$on('removeClassAdmin', () => {
+      this.$store.commit('REMOVE_CACHE', 'new_classification')
+    })
+  },
+  mounted () {
+
+  },
+  computed: {
+
+    roles () {
+      if (this.$store.getters.roles.includes('admin')) {
+        return '管理员'
+      }
+
+      return '用户'
+    }
+  },
+  watch: {
+
+  },
+  components: {
+
+  },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.$store.commit('ADD_CACHE', to.name)
+    })
+  }
 }
 </script>
 
 <style scoped lang="less">
     .container {
-        margin-top: 60px;
+        margin-top: 80px;
         padding: 0 30px;
         margin-bottom: 100px;
         .user_info {
@@ -372,7 +342,7 @@ export default {
                 }
                 span:nth-of-type(1) {
                     margin-left: 30px;
-                    
+
                 }
             }
             .user_info-bottom {
@@ -386,7 +356,7 @@ export default {
                 }
                 span:nth-of-type(2) {
                     margin-left: 34px;
-                    
+
                 }
             }
         }

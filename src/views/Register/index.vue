@@ -28,76 +28,69 @@
 
 <script>
 import {
-    userRegister
+  userRegister
 } from '@/api/user'
 export default {
-    name: 'Register',
-    props: {
+  name: 'Register',
+  props: {
 
-    },
-    data() {
-        return {
-            dialogVisible: false,
-            loadding: false,
-            msg: '请填写用户名、密码、账号'
+  },
+  data () {
+    return {
+      dialogVisible: false,
+      loadding: false,
+      msg: '请填写用户名、密码、账号'
+    }
+  },
+  computed: {
+
+  },
+  created () {
+
+  },
+  mounted () {
+
+  },
+  watch: {
+
+  },
+  methods: {
+    async userRegister (userInfo, form) {
+      // 按钮的加载状态
+      this.loadding = true
+      // 屏幕的加载状态
+      const loading = this.$loading(this.$store.state.loading)
+
+      try {
+        // 注册信息是否通过验证
+        const isOk = await form.validate()
+        // 发送请求
+        const { data } = await userRegister(userInfo)
+
+        if (data.code === 200) {
+          this.dialogVisible = true
+          this.$message.success(data.message)
+          return
         }
+
+        this.$message.warning(data.message)
+      } catch (error) {
+        this.$message.warning(this.msg)
+      } finally {
+        // 关闭加载状态
+        this.loadding = false
+        loading.close()
+      }
     },
-    computed: {
 
-    },
-    created() {
+    confirm () {
+      this.dialogVisible = false
+      this.$router.replace('/login')
+    }
+  },
+  components: {
 
-    },
-    mounted() {
-
-    },
-    watch: {
-
-    },
-    methods: {
-        async userRegister (userInfo, form) {
-
-            // 按钮的加载状态
-            this.loadding = true
-            // 屏幕的加载状态
-            const loading = this.$loading(this.$store.state.loading)
-
-            try {
-
-                // 注册信息是否通过验证
-                const isOk = await form.validate()
-                // 发送请求
-                const { data } = await userRegister(userInfo)
-
-                if (data.code === 200) {
-
-                    this.dialogVisible = true
-                    this.$message.success(data.message)
-                    return
-                }
-
-                this.$message.warning(data.message)
-
-            } catch (error) {
-
-                this.$message.warning(this.msg)
-
-            } finally {
-
-                // 关闭加载状态
-                this.loadding = false
-                loading.close()
-            }
-        },
-
-        confirm () {
-            this.dialogVisible = false
-            this.$router.replace('/login')
-        }
-    },
-    components: {
-
-    },
+  }
 }
 </script>
 

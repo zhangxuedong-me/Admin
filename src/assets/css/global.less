@@ -19,6 +19,13 @@ textarea {
     opacity: 0;
 }
 
+.fade-enter-active, .fade-leave-active {
+    transition: opacity .5s;
+}
+.fade-enter, .fade-leave-active {
+    opacity: 0;
+}
+
 // 自定义进度条的样式
 #nprogress .bar {
     background: #c3f909 !important; //自定义颜色

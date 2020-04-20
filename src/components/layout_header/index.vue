@@ -9,39 +9,39 @@
 
 <script>
 export default {
-    name: 'LayoutHeader',
-    props: {
+  name: 'LayoutHeader',
+  props: {
 
-    },
-    data() {
-        return {
+  },
+  data () {
+    return {
 
-        };
-    },
-    computed: {
+    }
+  },
+  computed: {
 
-    },
-    created() {
+  },
+  created () {
 
-    },
-    mounted() {
+  },
+  mounted () {
 
-    },
-    watch: {
+  },
+  watch: {
 
-    },
-    methods: {
-        point () {
-            this.$notify({
-                title: '重要提示',
-                message: '尊敬的用户您好，请文明用语，文章中不能有辱骂他人的语法，否则将禁止您的登陆。谢谢您的配合!',
-                duration: 5000
-            });
-        }
-    },
-    components: {
+  },
+  methods: {
+    point () {
+      this.$notify({
+        title: '重要提示',
+        message: '尊敬的用户您好，请文明用语，文章中不能有辱骂他人的语法，否则将禁止您的登陆。谢谢您的配合!',
+        duration: 5000
+      })
+    }
+  },
+  components: {
 
-    },
+  }
 }
 </script>
 

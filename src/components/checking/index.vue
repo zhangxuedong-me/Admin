@@ -80,6 +80,7 @@
                 :selectedImg="selectedImg"
                 @selectImg="selectedImg = $event"
                 :isTabShow="false"
+                :isIdentity="true"
             />
             <el-pagination
                 background
@@ -96,210 +97,200 @@
 <script>
 import { getUserImg } from '@/api/user'
 export default {
-    name: 'Checking',
-    props: {
-        titleText: {
-            type: String,
-            required: true
-        },
-        buttonText: {
-            type: String,
-            required: true
-        },
-        isRememberPwd: {
-            type: Boolean,
-            required: true
-        },
-        agreement: {
-            type: String,
-            required: true
-        },
-        btnText: {
-            type: String,
-            required: true
-        },
-        path: {
-            type: String,
-            required: true
-        },
-        loadding: {
-            type: Boolean
-        },
-        remember: {
-            type: String,
-            required: true
-        },
-        dialogVisible: {
-            type: Boolean,
-            required: false
-        }
+  name: 'Checking',
+  props: {
+    titleText: {
+      type: String,
+      required: true
     },
-    data() {
-        return {
-            // 考虑到去注册页面就不需要再获取值了，所以做了以下处理
-            userInfo: JSON.parse(window.localStorage.getItem(this.remember)) || {
-                username: '',
-                password: '',
-                mailbox: '',
-                checked: false,
-                gender: '男',
-                headImg: ''
+    buttonText: {
+      type: String,
+      required: true
+    },
+    isRememberPwd: {
+      type: Boolean,
+      required: true
+    },
+    agreement: {
+      type: String,
+      required: true
+    },
+    btnText: {
+      type: String,
+      required: true
+    },
+    path: {
+      type: String,
+      required: true
+    },
+    loadding: {
+      type: Boolean
+    },
+    remember: {
+      type: String,
+      required: true
+    },
+    dialogVisible: {
+      type: Boolean,
+      required: false
+    }
+  },
+  data () {
+    return {
+      // 考虑到去注册页面就不需要再获取值了，所以做了以下处理
+      userInfo: JSON.parse(window.localStorage.getItem(this.remember)) || {
+        username: '',
+        password: '',
+        mailbox: '',
+        checked: false,
+        gender: '男',
+        headImg: ''
+      },
+      that: this,
+      userInfoRules: {
+        username: [
+          {
+            required: true,
+            message: '请输入用户名',
+            trigger: 'blur'
+          },
+          {
+            pattern: /^[\u4e00-\u9fa5]{2,6}$/,
+            message: '用户名格式有误',
+            trigger: 'blur'
+          }
+        ],
+        password: [
+          {
+            required: true,
+            message: '请输入密码',
+            trigger: 'blur'
+          },
+          {
+            pattern: /^(?=.*[a-z])(?=.*\d)[^]{5,16}$/,
+            message: '密码格式最少5位包括字母，最多不超过11位',
+            trigger: 'blur'
+          }
+        ],
+        mailbox: [
+          {
+            required: true,
+            message: '请输入邮箱号',
+            trigger: 'blur'
+          },
+          {
+            pattern: /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/,
+            message: '邮箱格式有误',
+            trigger: 'blur'
+          }
+        ],
+        checked: this.$route.path === '/login' ? [] : [
+          {
+            validator (rule, value, callback) {
+              value ? callback() : callback(new Error('请勾选用户协议'))
             },
-            that: this,
-            userInfoRules: {
-                username: [
-                    {
-                        required: true,
-                        message: '请输入用户名',
-                        trigger: 'blur'
-                    },
-                    {
-                        pattern: /^[\u4e00-\u9fa5]{2,6}$/,
-                        message: '用户名格式有误',
-                        trigger: 'blur'
-                    }
-                ],
-                password: [
-                    {
-                        required: true,
-                        message: '请输入密码',
-                        trigger: 'blur'
-                    },
-                    {
-                        pattern: /^(?=.*[a-z])(?=.*\d)[^]{5,16}$/,
-                        message: '密码格式最少5位包括字母，最多不超过11位',
-                        trigger: 'blur'
-                    }
-                ],
-                mailbox: [
-                    {
-                        required: true,
-                        message: '请输入邮箱号',
-                        trigger: 'blur'
-                    },
-                    {
-                        pattern: /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/,
-                        message: '邮箱格式有误',
-                        trigger: 'blur'
-                    }
-                ],
-                checked: this.$route.path === '/login' ? [] : [
-                   {
-                       validator (rule, value, callback) {
-                           value ? callback() : callback(new Error('请勾选用户协议'))
-                       },
-                       trigger: 'blur'
-                   }
-                ]
-            },
-            dialogTableVisible: false,
-            headImgData: {},
-            selectedImg: {
-                id: '',
-                imgSrc: ''
-            },
-            pages: {
-                currentPage: 1,
-                pageSize: 10
-            }
+            trigger: 'blur'
+          }
+        ]
+      },
+      dialogTableVisible: false,
+      headImgData: {},
+      selectedImg: {
+        id: '',
+        imgSrc: ''
+      },
+      pages: {
+        currentPage: 1,
+        pageSize: 10,
+        type: 'user'
+      }
+    }
+  },
+  computed: {
+
+  },
+  created () {
+    this.getUserHeadImg()
+    this.$emit('usernameBlur', this.userInfo.username)
+  },
+  mounted () {
+
+  },
+  watch: {
+    dialogVisible (newVal) {
+      if (newVal) return
+
+      this.userInfo = {
+        username: '',
+        password: '',
+        mailbox: '',
+        checked: false,
+        gender: '男',
+        headImg: ''
+      }
+    }
+  },
+  methods: {
+    loginMaypeRegister () {
+      // 如果是登陆页面的话，就要查看记住密码的状态是否为true，为true的话，再检查，如果密码或者用户名都
+      // 为空的话不存储，如果记住密码的状态为false的话，则删除存储的用户内容
+      if (this.$route.path === '/login') {
+        if (this.userInfo.checked) {
+          if (this.userInfo.username !== '' || this.userInfo.password !== '') {
+            window.localStorage.setItem('remember', JSON.stringify(this.userInfo))
+          }
+        } else {
+          if (window.localStorage.getItem('remember')) {
+            window.localStorage.removeItem('remember')
+          }
         }
+      }
+      this.$emit('loginMaypeRegister', this.userInfo, this.$refs.myForm)
     },
-    computed: {
 
+    // 获取用户头像
+    async getUserHeadImg () {
+      
+      const { data } = await getUserImg(this.pages)
+      this.headImgData = data
     },
-    created() {
-       this.getUserHeadImg()
-       this.$emit('usernameBlur', this.userInfo.username)
+    pageChange (page) {
+
+      this.pages.currentPage = page
+      this.getUserHeadImg()
     },
-    mounted() {
-        
-    },
-    watch: {
-        dialogVisible (newVal) {
+    selectDefine () {
 
-            if (newVal) return
+      if (!this.selectedImg.imgSrc) {
+        this.$message.warning('请先选择一张图片把')
+        return
+      }
 
-             this.userInfo = {
-                username: '',
-                password: '',
-                mailbox: '',
-                checked: false,
-                gender: '男',
-                headImg: ''
-            }
-        }
-    },
-    methods: {
-        loginMaypeRegister () {
-            
-            // 如果是登陆页面的话，就要查看记住密码的状态是否为true，为true的话，再检查，如果密码或者用户名都
-            // 为空的话不存储，如果记住密码的状态为false的话，则删除存储的用户内容
-            if (this.$route.path === '/login') {
+      this.$confirm.confirm('亲，您确定要选择此图片作为您的头像吗?', '提示', {
 
-                if (this.userInfo.checked) {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.userInfo.headImg = this.selectedImg.imgSrc
+        this.dialogTableVisible = false
 
-                    if (this.userInfo.username !== "" || this.userInfo.password !== "") {
-                        
-                        window.localStorage.setItem('remember', JSON.stringify(this.userInfo))
-                    }
+        this.$message({
+          type: 'success',
+          message: '选择成功'
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消'
+        })
+      })
+    }
 
-                } else {
+  },
+  components: {
 
-                    if (window.localStorage.getItem('remember')) {
-
-                        window.localStorage.removeItem('remember')
-                    }
-                }
-            }
-            this.$emit('loginMaypeRegister', this.userInfo, this.$refs.myForm)
-        },
-
-        // 获取用户头像
-        async getUserHeadImg () {
-
-            const { data } = await getUserImg(this.pages)
-            this.headImgData = data
-        },
-        pageChange (page) {
-            
-            this.pages.currentPage = page
-            this.getUserHeadImg()
-        },
-        selectDefine () {
-            
-            if (!this.selectedImg.imgSrc) {
-
-                this.$message.warning('请先选择一张图片把')
-                return
-            }
-
-            this.$confirm.confirm('亲，您确定要选择此图片作为您的头像吗?', '提示', {
-
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-
-                this.userInfo.headImg = this.selectedImg.imgSrc
-                this.dialogTableVisible = false
-
-                this.$message({
-                    type: 'success',
-                    message: '选择成功'
-                })
-            }).catch(() => {
-
-                this.$message({
-                    type: 'info',
-                    message: '已取消'
-                })       
-            })
-        }
-           
-    },
-    components: {
-
-    },
+  }
 }
 </script>
 
@@ -328,7 +319,7 @@ export default {
                         background: #1689f4;
                         border: none;
                         font-size: 12px;
-                        vertical-align:none; 
+                        vertical-align:none;
                         color: #ffffff;
                         padding: 0 16px;
                     }
@@ -337,7 +328,7 @@ export default {
                         border: none;
                         color: #ffffff;
                     }
-                    
+
                 }
                 /deep/ .el-checkbox {
                     .el-checkbox__label {
@@ -353,7 +344,7 @@ export default {
                     .el-radio-group {
                         .el-radio {
                             color: #ffffff;
-                            
+
                         }
                     }
                 }
@@ -380,7 +371,7 @@ export default {
                 margin-left: 186px;
             }
             .btn_agree {
-                margin-left: 66px !important; 
+                margin-left: 66px !important;
             }
         }
         .box-card {

@@ -1,11 +1,14 @@
 <template>
     <div class="container">
-        
+
         <div class="userInfo">
             <div class="userInfo_top">
                 <div></div>
-                <img v-lazy="userInfo.headImg ? userInfo.headImg : defaultImg" alt="" />
-                <h4>{{ userInfo.username }}</h4>
+                <img
+                    v-lazy="$store.state.userInfo.headImg ? $store.state.userInfo.headImg : defaultImg"
+                    alt=""
+                />
+                <h4>{{ $store.state.userInfo.username }}</h4>
             </div>
             <div class="user_link">
                 <div class="user_github" @click="goGitHub">
@@ -19,7 +22,7 @@
                 <el-button class="btn" type="primary" round @click="signOut">退出登录</el-button>
             </div>
         </div>
-        
+
         <el-menu
             mode="vertical"
             text-color="#ffffff"
@@ -61,51 +64,65 @@
 <script>
 import { HappyScroll } from 'vue-happy-scroll'
 export default {
-    name: 'LayoutAside',
-    props: {
-        
-    },
-    data() {
-        return {
-            userInfo: this.$store.state.userInfo,
-            defaultImg: require('../../assets/images/touxiang.png')
-        };
-    },
-    computed: {
+  name: 'LayoutAside',
+  props: {
 
-    },
-    created() {
-        
-    },
-    mounted() {
-       
-    },
-    watch: {
-
-    },
-    methods: {
-        
-        goGitHub () {
-            window.location.href = this.userInfo.github
-        },
-
-        goWeiXin () {
-            window.location.href = this.userInfo.weixin
-        },
-
-        signOut () {
-
-            window.sessionStorage.removeItem('userInfo')
-
-            this.$message.success('已退出登录')
-            
-            this.$router.replace('/login')
-      
-        }
-    },
-    components: {
-        HappyScroll
+  },
+  data () {
+    return {
+      defaultImg: require('../../assets/images/touxiang.png')
     }
+  },
+  computed: {
+
+  },
+  created () {
+
+  },
+  mounted () {
+
+  },
+  watch: {
+
+  },
+  methods: {
+
+    goGitHub () {
+      window.location.href = this.$store.state.userInfo.github
+    },
+
+    goWeiXin () {
+      window.location.href = this.$store.state.userInfo.weixin
+    },
+
+    signOut () {
+      
+      // 清除用户的个人信息和token   
+      window.sessionStorage.removeItem('userInfo')
+
+      // 清除用户的导航数据 
+      window.sessionStorage.removeItem('nav_bar')
+
+      // 清除用户的临时数组中的导航 
+      this.$store.state.navBars = {
+          navBarArr: [{ path: '/first_page', name: '首页' }],
+          index: 0
+      }
+
+      // 清除用户的权限 
+      this.$store.state.roles = []
+
+      // 清除用户的缓存
+      this.$store.state.cache = []
+
+      this.$message.success('已退出登录')
+
+      this.$router.replace('/login')
+    }
+  },
+  components: {
+    HappyScroll
+  }
 }
 </script>
 
@@ -117,7 +134,7 @@ export default {
         background: #353b4e;
         background-size: 100% 100%;
         overflow: hidden;
-         
+
         .el-menu {
             width: 260px;
             height: 100vh;
@@ -128,7 +145,7 @@ export default {
             /deep/ .el-menu {
                 background: none;
             }
-           
+
             /deep/ .el-submenu {
                 .el-submenu__title:hover {
                     background: #fad526;

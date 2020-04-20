@@ -15,3 +15,5 @@ export const getUserImg = params => request('GET', '/admin/user/user_img', param
 // 获取用户登陆时的头像
 export const getLoginImg = params => request('GET', '/admin/user/login_img', params)
 
+// 修改用户资料
+export const editUserInfo = data => request('POST', '/admin/user/edit_user', data)
