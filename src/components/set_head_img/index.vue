@@ -15,7 +15,7 @@
               用户头像
             </el-button>
           </template>
-          
+
         </el-tab-pane>
         <el-tab-pane name="admin">
           <template slot="label">
@@ -91,7 +91,7 @@ export default {
   methods: {
   },
   watch: {
-  
+
   },
   mounted () {},
   components: {}

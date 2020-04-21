@@ -31,7 +31,7 @@
                         clearable
                     >
                         <el-option
-                            v-for="(item, index) in classData"
+                            v-for="(item, index) in classificationData.data"
                             :key="index"
                             :label="item.name"
                             :value="item.name"
@@ -144,12 +144,14 @@
 <script>
 import {
   getArticleData,
-  getClassificationData,
   deleteArticle,
   prohibitAndRecovery
 
 } from '@/api/articles.js'
+
+import { publicLogic } from '@/mixins/index'
 export default {
+  mixins: [publicLogic],
   name: 'articles_manage',
   props: {
 
@@ -170,8 +172,6 @@ export default {
       articleResult: [],
 
       articleData: {},
-
-      classData: [],
 
       startHttp: true,
 
@@ -218,13 +218,6 @@ export default {
       } finally {
         loading.close()
       }
-    },
-
-    // 获取文章分类接口数据
-    async getClassData () {
-      const { data } = await getClassificationData({ id: 1 })
-
-      this.classData = data.data
     },
 
     // 点击之后切换页码
@@ -293,7 +286,6 @@ export default {
   },
   created () {
     this.searchBtn()
-    this.getClassData()
   },
   mounted () {
     this.$event.$on('removeArticle', () => {

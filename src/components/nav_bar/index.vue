@@ -43,7 +43,7 @@ export default {
     $route: {
       handler: function (val) {
 
-          val.name === 'edit_article'
+        val.name === 'edit_article'
 
           ? this.$store.commit('SET_USERNAVBAR', {
             path: `/${val.name}`,
@@ -65,6 +65,7 @@ export default {
     }
   },
   methods: {
+
     navClick (item, i) {
       // 判断一下如果要去的那一项是当前项的的话就return，编辑页面需要特殊处理
 
@@ -79,33 +80,46 @@ export default {
     },
 
     close (i) {
+
       const name = this.navBarsData.navBarArr[i].path.split('/')[1]
 
-      // 既然删除导航标签，那缓存就没有必须要了
       this.navBarsData.navBarArr.splice(i, 1)
+
+      // 每次关闭的时候本地存储重新存储
+      window.sessionStorage.setItem('nav_bar', JSON.stringify(this.navBarsData))
+
+      // 既然删除导航标签，那缓存就没有必须要了
 
       this.$store.commit('REMOVE_CACHE', name)
 
       if (i <= this.navBarsData.index) {
+
         this.navBarsData.index -= 1
 
         // 判断一下如果导航栏数组中有数据才执行
 
         if (this.navBarsData.navBarArr[i - 1] !== undefined) {
+
           // 判断当前要去的路径不是当前的路径才去执行跳转路径
           if (this.navBarsData.navBarArr[i - 1].path !== this.$route.path) {
+
             // 判断一下点击的是不是当前的那一项，如果是的话，就去当前项的下一项的路由
             if (i - 1 === this.navBarsData.index) {
+
               if (this.navBarsData.navBarArr[i - 1].id) {
+
                 const { id, path } = this.navBarsData.navBarArr[i - 1]
 
                 this.$router.replace(`${path}/${id}`)
+
               } else {
+
                 this.$router.replace(this.navBarsData.navBarArr[i - 1].path)
               }
             }
           }
         } else {
+
           // 判断一下如果导航栏数组的长度大于等于1的话，说明还有导航栏数据，重新改变他的高亮坐标，就等于当前点击
           // 的坐标，重新高亮
 
@@ -117,14 +131,18 @@ export default {
 
             // 如果当前要去的路由和当前路由一样的话就终止
             if (this.navBarsData.navBarArr[i].path === this.$route.path) return
+
             this.$router.replace(this.navBarsData.navBarArr[i].path)
           } else {
+
             // 显示默认的首页
             this.navBarsData.navBarArr.push(this.defaultNav)
+
             this.navBarsData.index = 0
 
             // 判断一下如果当前的路径和默认项的首页路径相同的话就终止，否则就跳转的默认首页
             if (this.navBarsData.navBarArr[i].path === this.$route.path) return
+
             this.$router.replace(this.navBarsData.navBarArr[i].path)
           }
         }

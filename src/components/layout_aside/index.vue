@@ -96,20 +96,19 @@ export default {
     },
 
     signOut () {
-      
-      // 清除用户的个人信息和token   
+      // 清除用户的个人信息和token
       window.sessionStorage.removeItem('userInfo')
 
-      // 清除用户的导航数据 
+      // 清除用户的导航数据
       window.sessionStorage.removeItem('nav_bar')
 
-      // 清除用户的临时数组中的导航 
+      // 清除用户的临时数组中的导航
       this.$store.state.navBars = {
-          navBarArr: [{ path: '/first_page', name: '首页' }],
-          index: 0
+        navBarArr: [{ path: '/first_page', name: '首页' }],
+        index: 0
       }
 
-      // 清除用户的权限 
+      // 清除用户的权限
       this.$store.state.roles = []
 
       // 清除用户的缓存

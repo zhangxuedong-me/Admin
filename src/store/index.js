@@ -34,8 +34,10 @@ export default new Vuex.Store({
     SET_USERNAVBAR ({ navBars }, navBar) {
 
       if (navBars.navBarArr.length === 0) {
+
         navBars.navBarArr.push(navBar)
       } else {
+
         const navItem = navBars.navBarArr.find((item, index) => {
           if (item.path === navBar.path) {
             navBars.index = index
@@ -61,7 +63,6 @@ export default new Vuex.Store({
 
     // 动态删除缓存组件
     REMOVE_CACHE ({ cache }, name) {
-
       const index = cache.indexOf(name)
 
       if (index === -1) return

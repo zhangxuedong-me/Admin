@@ -20,6 +20,7 @@
                         v-model="userInfo.password"
                         clearable
                         type="password"
+                        show-password
                     >
                         <p class="user_title" slot="prepend">密码</p>
                     </el-input>
@@ -33,9 +34,15 @@
                     <p class="user_title" slot="prepend">邮箱号</p>
                     </el-input>
                 </el-form-item>
-                <el-form-item prop="checked">
+                <el-form-item prop="checked" class="agree_form">
                     <el-checkbox v-model="userInfo.checked">{{ agreement }}</el-checkbox>
-                    <span v-show="isRememberPwd" class="user_agree">必读用户协议</span>
+                    <span
+                      v-show="isRememberPwd"
+                      class="user_agree"
+                      @click="$emit('userAgree')"
+                    >
+                      必读用户协议
+                    </span>
                     <el-button
                         class="user_register"
                         :class="isRememberPwd ? 'btn_agree' : ''"
@@ -231,6 +238,7 @@ export default {
     }
   },
   methods: {
+    
     loginMaypeRegister () {
       // 如果是登陆页面的话，就要查看记住密码的状态是否为true，为true的话，再检查，如果密码或者用户名都
       // 为空的话不存储，如果记住密码的状态为false的话，则删除存储的用户内容
@@ -250,17 +258,14 @@ export default {
 
     // 获取用户头像
     async getUserHeadImg () {
-      
       const { data } = await getUserImg(this.pages)
       this.headImgData = data
     },
     pageChange (page) {
-
       this.pages.currentPage = page
       this.getUserHeadImg()
     },
     selectDefine () {
-
       if (!this.selectedImg.imgSrc) {
         this.$message.warning('请先选择一张图片把')
         return
@@ -336,6 +341,12 @@ export default {
                     }
                 }
             }
+            /deep/ .agree_form {
+              .el-form-item__content {
+                height: 40px;
+                display: flex;
+              }
+            }
             /deep/ .el-form-item:last-of-type {
                 .el-form-item__label {
                     color: #2b90f6;
@@ -379,7 +390,7 @@ export default {
             margin: 100px auto;
         }
         .user_agree {
-            color: #58d7f7;
+            color: #f0833a;
             cursor: pointer;
             margin-left: 10px;
         }

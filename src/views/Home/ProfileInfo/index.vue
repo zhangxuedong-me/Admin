@@ -38,62 +38,82 @@
                             <p>性别:<span>{{ $store.state.userInfo.gender }}</span></p>
                             <p>邮箱:<span>{{ $store.state.userInfo.Email }}</span></p>
                             <p>ID:<span>{{ $store.state.userInfo.id }}</span></p>
-                            <p>描述：<span>{{ userDescribe }}</span></p>
+                            <p>个人介绍:
+                                <span>
+                                    {{ $store.state.userInfo.introduce }}
+                                </span>
+                            </p>
                         </div>
                     </transition>
                     <transition name="fade">
                         <div class="edit_show" v-if="!isEditShow">
                             <div class="edit_show_item">
                                 <div class="edit_show_left">
-                                    <div class="edit_username">
-                                        <h4>
-                                            <span class="el-icon-s-custom"></span>
-                                            <span>用户名</span>
-                                        </h4>
-                                        <el-input
-                                            placeholder="请输入用户名"
-                                            v-model="userInfo.username"
-                                            clearable
-                                        />
-                                    </div>
-                                    <div class="edit_username two">
-                                        <h4>
-                                            <span class="el-icon-s-custom"></span>
-                                            <span>性别</span>
-                                        </h4>
-                                        <el-radio-group v-model="userInfo.gender">
-                                            <el-radio label="男">男</el-radio>
-                                            <el-radio label="女">女</el-radio>
-                                        </el-radio-group>
-                                    </div>
-                                    <div class="edit_username">
-                                        <h4>
-                                            <span class="el-icon-s-custom"></span>
-                                            <span>邮箱号</span>
-                                        </h4>
-                                        <el-input
-                                            placeholder="请输入邮箱号"
-                                            v-model="userInfo.Email"
-                                            clearable
-                                        />
-                                    </div>
-                                    <div class="edit_username">
-                                        <h4>
-                                            <span class="el-icon-s-custom"></span>
-                                            <span>密码</span>
-                                        </h4>
-                                        <el-input
-                                            placeholder="请输入密码"
-                                            v-model="userInfo.password"
-                                            clearable
-                                            show-password
-                                        />
-                                    </div>
+                                    <el-form
+                                        ref="editForm"
+                                        :model="userInfo"
+                                        :rules="userInfoRules"
+                                        status-icon
+                                        :show-message="false"
+                                    >
+                                        <el-form-item prop="username">
+                                            <div class="edit_username">
+                                                <h4>
+                                                    <span class="el-icon-s-custom"></span>
+                                                    <span>用户名</span>
+                                                </h4>
+                                                <el-input
+                                                    placeholder="必须2-6个汉子"
+                                                    v-model="userInfo.username"
+                                                    clearable
+                                                />
+                                            </div>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <div class="edit_username two">
+                                                <h4>
+                                                    <span class="el-icon-s-check"></span>
+                                                    <span>性别</span>
+                                                </h4>
+                                                <el-radio-group v-model="userInfo.gender">
+                                                    <el-radio label="男">男</el-radio>
+                                                    <el-radio label="女">女</el-radio>
+                                                </el-radio-group>
+                                            </div>
+                                        </el-form-item>
+                                        <el-form-item prop="Email">
+                                            <div class="edit_username">
+                                                <h4>
+                                                    <span class="el-icon-message"></span>
+                                                    <span>邮箱号</span>
+                                                </h4>
+                                                <el-input
+                                                    placeholder="请输入邮箱号"
+                                                    v-model="userInfo.Email"
+                                                    clearable
+                                                />
+                                            </div>
+                                        </el-form-item>
+                                        <el-form-item prop="password">
+                                            <div class="edit_username">
+                                                <h4>
+                                                    <span class="el-icon-view"></span>
+                                                    <span>密码</span>
+                                                </h4>
+                                                <el-input
+                                                    placeholder="请输入密码"
+                                                    v-model="userInfo.password"
+                                                    clearable
+                                                    show-password
+                                                />
+                                            </div>
+                                        </el-form-item>
+                                    </el-form>
                                 </div>
                                 <div class="edit_show_left right">
                                     <div class="edit_username">
                                         <h4>
-                                            <span class="el-icon-s-custom"></span>
+                                            <span class="el-icon-s-finance"></span>
                                             <span>GitHub</span>
                                         </h4>
                                         <el-input
@@ -104,7 +124,7 @@
                                     </div>
                                     <div class="edit_username">
                                         <h4>
-                                            <span class="el-icon-s-custom"></span>
+                                            <span class="el-icon-s-claim"></span>
                                             <span>微信</span>
                                         </h4>
                                         <el-input
@@ -115,13 +135,15 @@
                                     </div>
                                     <div class="edit_username">
                                         <h4>
-                                            <span class="el-icon-s-custom"></span>
+                                            <span class="el-icon-user-solid"></span>
                                             <span>个人介绍</span>
                                         </h4>
                                         <el-input
                                             placeholder="请输入您的自我介绍"
                                             v-model="userInfo.introduce"
                                             clearable
+                                            :maxlength="15"
+                                            show-word-limit
                                         />
                                     </div>
                                 </div>
@@ -185,114 +207,222 @@ export default {
   },
   data () {
     return {
-        dialogTableVisible: false,
-        pages: {
-            currentPage: 1,
-            pageSize: 10,
-            type: 'user'
-        },
-        userInfo: this.$store.state.userInfo,
-        isEditShow: true,
-        headImgData: {},
-        selectedImg: {
-            id: '',
-            imgSrc: ''
-        },
-        isIdentity: true
+
+      // 用户头像弹框的状态
+      dialogTableVisible: false,
+
+      // 获取用户图片   
+      pages: {
+        currentPage: 1,
+        pageSize: 10,
+        type: 'user'
+      },
+
+      // 修改的用户信息   
+      userInfo: {
+          id: this.$store.state.userInfo.id,
+          username: this.$store.state.userInfo.username,
+          Email: this.$store.state.userInfo.Email,
+          gender: this.$store.state.userInfo.gender,
+          password: this.$store.state.userInfo.password,
+          headImg: this.$store.state.userInfo.headImg,
+          github: this.$store.state.userInfo.github,
+          weixin: this.$store.state.userInfo.weixin,
+          token: this.$store.state.userInfo.token,
+          introduce: this.$store.state.userInfo.introduce
+      },
+
+      // 验证用户修改提交的验证   
+      userInfoRules: {
+         username: [
+            {
+              required: true,
+              message: '请输入用户名',
+              trigger: 'blur'
+            },
+            {
+              pattern: /^[\u4e00-\u9fa5]{2,6}$/,
+              message: '用户名格式有误',
+              trigger: 'blur'
+            }
+          ],
+          password: [
+            {
+                required: true,
+                message: '请输入密码',
+                trigger: 'blur'
+            },
+            {
+                pattern: /^(?=.*[a-z])(?=.*\d)[^]{5,16}$/,
+                message: '密码格式最少5位包括字母，最多不超过11位',
+                trigger: 'blur'
+            }
+          ],
+          Email: [
+            {
+                required: true,
+                message: '请输入邮箱号',
+                trigger: 'blur'
+            },
+            {
+                pattern: /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/,
+                message: '邮箱格式有误',
+                trigger: 'blur'
+            }
+          ]
+      },
+
+      // 用户信息修改显示状态   
+      isEditShow: true,
+
+      // 用户图片数据   
+      headImgData: {},
+
+      // 点击每一张的图片  
+      selectedImg: {
+        id: '',
+        imgSrc: ''
+      },
+
+      // 根据不同的身份显示不同的信息   
+      isIdentity: true,
+
+      // 什么时候发送请求   
+      startHttp: true,
+      msg: ''
     }
   },
   computed: {
-      userDescribe () {
 
-          return this.$store.state.userInfo.gender === "女"
-          ? '美丽漂亮的小仙女，欢迎你' : '帅气阳光的大帅哥，欢迎你'
-      }
   },
   created () {
-    
+     
   },
   mounted () {
 
   },
   watch: {
+      userInfo: {
+        handler: function (val) {
 
+            this.startHttp = true
+        },
+        deep: true
+      }
   },
   methods: {
 
-      // 获取用户图片   
-      async editImg () {
+    // 获取用户图片
+    async editImg () {
 
-          this.dialogTableVisible = true
+      this.dialogTableVisible = true
 
-          const { data } = await getUserImg(this.pages)
-          this.headImgData = data
-      },
+      const { data } = await getUserImg(this.pages)
+      this.headImgData = data
+    },
+
+    // 点击保存保存修改资料
+    keepEdit () {
       
-      // 点击保存保存修改资料  
-      keepEdit () {
-          alert('修改成功')
-      },
+      // 判断一下当数据内容发生改变再发送请求   
+      if (this.startHttp) {
 
-      pageChange (page) {
+          this.editUserInfo()
+          return
+      }
+
+      this.$message.success(this.msg)
+      
+    },
+
+    // 切换页码
+    pageChange (page) {
+
+      this.pages.currentPage = page
+      this.editImg()
+    },
+
+    async editUserInfo () {
+
+      const loading = this.$loading(this.$store.state.loading)
+
+      try {
           
-          this.pages.currentPage = page
-          this.editImg()
-      },
+         await this.$refs.editForm.validate()
 
-      // 点击确定选择图片   
-      async selectDefine () {
+         await this.$confirm.confirm('亲，您确定要修改自己的信息吗?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+         })
 
-        const loading = this.$loading(this.$store.state.loading)
-        
-        try {
+        // 发送请求
+        const { data } = await editUserInfo({
+          ...this.userInfo,
+          headImg: this.selectedImg.imgSrc ? this.selectedImg.imgSrc : this.userInfo.headImg
+        })
 
-            // 发送请求
-            const { data } = await editUserInfo({
-                ...this.userInfo,
-                headImg: this.selectedImg.imgSrc 
-            })
+        this.startHttp = false
 
-            this.dialogTableVisible = false
+        this.dialogTableVisible = false
 
-            this.$store.commit('SET_USERINFO', data.data)
+        this.isEditShow = true
 
-            this.$message.success(data.message)
+        this.$store.commit('SET_USERINFO', data.data)
 
-        } finally {
+        this.$message.success(data.message)
 
-            loading.close()
-        }
-        
-        
+        this.msg = data.message
 
-      },
+      } catch (error) {
 
-      tabClick (type) {
+          if (error === 'cancel') {
 
-          this.pages.currentPage = 1
+              this.$message('取消修改')
+              this.isEditShow = true
 
-          this.pages.type = type
-
-          if (type === 'admin') {
-
-              if (this.$store.getters.roles.includes('admin')) {
-
-                  this.isIdentity = true
-
-              } else {
-
-                  this.isIdentity = false
-                  this.$message.warning('您还不是管理员，没有操作权限')
-              }
-
-              this.editImg()
               return
           }
 
-          this.isIdentity = true
+          error === false ? this.$message.warning('请按正规的手续填写信息') : ''
+          
+      } finally {
 
-          this.editImg()
+        loading.close()
       }
+    },
+
+    // 点击确定选择图片
+    selectDefine () {
+
+      this.editUserInfo()
+    },
+
+    tabClick (type) {
+
+      this.pages.currentPage = 1
+
+      this.pages.type = type
+
+      if (type === 'admin') {
+
+        if (this.$store.getters.roles.includes('admin')) {
+
+          this.isIdentity = true
+        } else {
+
+          this.isIdentity = false
+          this.$message.warning('您还不是管理员，没有操作权限')
+        }
+
+        this.editImg()
+        return
+      }
+
+      this.isIdentity = true
+
+      this.editImg()
+    }
   },
   components: {
 
@@ -365,13 +495,23 @@ export default {
                         display: flex;
                         .edit_show_left {
                             padding-top: 20px;
-                            padding-left: 36px;
+                            padding-left: 30px;
+                            .el-form {
+                                .el-form-item {
+                                    margin: 0;
+                                    padding: 0;
+                                    .el-form-item__content {
+
+                                        line-height: 0;
+                                    }
+                                }
+                            }
                             .edit_username {
                                 display: flex;
                                 align-items: center;
                                 margin-top: 20px;
                                 h4 {
-                                    width: 130px;
+                                    width: 140px;
                                     padding-bottom: 10px;
                                     color: #afafaf;
                                     span:nth-of-type(1) {
@@ -384,10 +524,8 @@ export default {
                             }
                         }
                         .right {
-                            margin: 0;
-                            padding: 0;
                             padding-top: 20px;
-                            padding-left: 30px;
+                            padding-left: 20px;
                         }
                         .two {
                             h4 {
@@ -419,7 +557,7 @@ export default {
                     }
                     P:nth-of-type(5) {
                         position: absolute;
-                        left: -180px;
+                        left: -220px;
                         top: 220px;
                         color: #f8b359;
                         font-size: 20px;

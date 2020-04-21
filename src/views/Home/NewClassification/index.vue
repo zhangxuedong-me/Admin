@@ -15,7 +15,7 @@
        <div class="user_class">
            <h4>分类管理</h4>
             <el-table
-                :data="tableData.data"
+                :data="classificationData.data"
                 style="width: 100%"
                 empty-text="暂无分类"
                 highlight-current-row
@@ -77,9 +77,9 @@
             <el-pagination
                 background
                 layout="prev, pager, next"
-                :total="tableData.total"
-                :page-size="pages.pageSize"
-                :current-page="pages.currentPage"
+                :total="classificationData.total"
+                :page-size="classificationData.pageSize"
+                :current-page="classificationData.currentPage"
                 @current-change="pageChange"
             >
             </el-pagination>
@@ -127,7 +127,7 @@
 </template>
 
 <script>
-import { getClassificationData } from '@/api/articles'
+import { publicLogic } from '@/mixins/index'
 import {
   deleteClass,
   getEditClass,
@@ -135,6 +135,7 @@ import {
   prohibitAndRecovery
 } from '@/api/admin_class'
 export default {
+  mixins: [publicLogic],
   name: 'new_classification',
   props: {
 
@@ -142,7 +143,6 @@ export default {
   data () {
     return {
 
-      tableData: [],
       pages: {
         currentPage: 1,
         pageSize: 6
@@ -168,22 +168,11 @@ export default {
   },
   methods: {
 
-    // 获取分类数据
-    async getClassData () {
-      const { data } = await getClassificationData({
-
-        id: this.$store.getters.getuserInfo.id,
-        ...this.pages
-      })
-
-      this.tableData = data
-    },
-
     // 切换页面
     pageChange (page) {
-      this.pages.currentPage = page
 
-      this.getClassData()
+      this.pages.currentPage = page
+      this.getClassification()
     },
 
     // 删除分类
@@ -204,19 +193,19 @@ export default {
 
         this.$message.success(data.message)
 
-        this.tableData.data.forEach((item, index) => {
+        this.classificationData.data.forEach((item, index) => {
           if (item.detailId === obj.detailId) {
-            this.tableData.data.splice(index, 1)
+            this.classificationData.data.splice(index, 1)
           }
         })
 
         // 判断一下如果当前页数据删除完毕的话，就去请求上一页的数据
-        if (!this.tableData.data.length) {
+        if (!this.classificationData.data.length) {
           // 判断一下上一页的如果大于1的话，再执行
           if (!(this.pages.currentPage - 1 < 1)) {
             this.pages.currentPage -= 1
 
-            this.getClassData()
+            this.getClassification()
           }
         }
 
@@ -229,6 +218,7 @@ export default {
 
     // 获取要修改的文章
     async getEditClass (obj) {
+
       this.dialogVisible = true
 
       const { data } = await getEditClass(obj)
@@ -238,16 +228,18 @@ export default {
 
     // 点击保存条修改后的数据
     async keepClass () {
+
       const loading = this.$loading(this.$store.state.loading)
 
       try {
+
         const { data } = await keepClass(this.editClassData)
 
         this.$message.success(data.message)
 
-        this.tableData.data.forEach((item, index) => {
+        this.classificationData.data.forEach((item, index) => {
           if (item.detailId === this.editClassData.detailId) {
-            this.tableData.data[index] = this.editClassData
+            this.classificationData.data[index] = this.editClassData
           }
         })
 
@@ -259,7 +251,9 @@ export default {
 
     // 禁止或者恢复分类
     async prohibitAndRecovery (obj) {
+
       try {
+
         await this.$confirm.confirm('亲，您确定要操作此分类码!', '提示', {
           type: 'warning',
           cancelButtonText: '思考一下',
@@ -271,6 +265,7 @@ export default {
         this.$message.success(data.message)
 
         obj.isProhibit = !obj.isProhibit
+
       } catch (error) {
         error === 'cancel' ? this.$message.info('已取消删除') : ''
       }
@@ -278,8 +273,6 @@ export default {
 
   },
   created () {
-    // 获取分类数据
-    this.getClassData()
 
     // 删除当前页面的缓存
     this.$event.$on('removeClassAdmin', () => {
@@ -292,6 +285,7 @@ export default {
   computed: {
 
     roles () {
+
       if (this.$store.getters.roles.includes('admin')) {
         return '管理员'
       }

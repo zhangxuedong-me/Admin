@@ -11,6 +11,7 @@
             remember=""
             :loadding="loadding"
             :dialogVisible="dialogVisible"
+            @userAgree="userAgree"
         />
         <el-dialog
             title="注册成功"
@@ -23,6 +24,21 @@
                 <el-button type="primary" @click="confirm">确 定</el-button>
             </span>
         </el-dialog>
+
+        <el-dialog
+          title="用户协议"
+          :visible.sync="isAgree"
+          width="30%"
+          :before-close="handleClose"
+        >
+          <div class="agree_item">
+            <p>管理员微信：18532620986</p>
+            <p>管理员qq：1849310432</p>
+          </div>
+          <span slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="isAgree = false">确 定</el-button>
+          </span>
+      </el-dialog>
     </div>
 </template>
 
@@ -39,7 +55,8 @@ export default {
     return {
       dialogVisible: false,
       loadding: false,
-      msg: '请填写用户名、密码、账号'
+      msg: '请填写用户名、密码、账号',
+      isAgree: false
     }
   },
   computed: {
@@ -55,7 +72,9 @@ export default {
 
   },
   methods: {
+    
     async userRegister (userInfo, form) {
+
       // 按钮的加载状态
       this.loadding = true
       // 屏幕的加载状态
@@ -63,13 +82,16 @@ export default {
 
       try {
         // 注册信息是否通过验证
-        const isOk = await form.validate()
+        await form.validate()
+
         // 发送请求
         const { data } = await userRegister(userInfo)
 
         if (data.code === 200) {
+          
           this.dialogVisible = true
           this.$message.success(data.message)
+          this.this.isAgree = false
           return
         }
 
@@ -86,6 +108,11 @@ export default {
     confirm () {
       this.dialogVisible = false
       this.$router.replace('/login')
+    },
+
+    userAgree () {
+      
+      this.isAgree = true
     }
   },
   components: {
@@ -100,5 +127,12 @@ export default {
         height: 100vh;
         background: url('../../assets/images/register_url2.jpg') no-repeat;
         background-size: 100% 100vh;
+        .agree_item {
+          p {
+            margin: 20px 0;
+            font-family: "楷体";
+            font-size: 20px;
+          }
+        }
     }
 </style>

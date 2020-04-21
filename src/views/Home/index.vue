@@ -27,7 +27,7 @@
 export default {
   name: 'Index',
   props: {
-      
+
   },
   data () {
     return {
@@ -38,25 +38,22 @@ export default {
 
   },
   created () {
-
     if (this.$store.getters.roles.includes('admin')) {
-
-         this.$notify({
-            title: '尊敬的管理员，您好',
-            message: '送上一天最真诚的祝福，祝您每一天生活愉快，万事如意',
-            type: 'success',
-            duration: 5000
-        })
-        return
+      this.$notify({
+        title: '尊敬的管理员，您好',
+        message: '送上一天最真诚的祝福，祝您每一天生活愉快，万事如意',
+        type: 'success',
+        duration: 5000
+      })
+      return
     }
 
     this.$notify({
-        title: '尊敬的用户，您好',
-        message: '请友好发言，尊重你，我，他!',
-        type: 'warning',
-        duration: 5000
+      title: '尊敬的用户，您好',
+      message: '请友好发言，尊重你，我，他!',
+      type: 'warning',
+      duration: 5000
     })
-   
   },
   mounted () {
 

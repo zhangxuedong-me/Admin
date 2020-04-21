@@ -36,7 +36,7 @@
                   >
                     <el-option
                       clearable
-                      v-for="(item, index) in classificationData"
+                      v-for="(item, index) in classificationData.data"
                       :key="index"
                       :value="item.name"
                       :label="item.name"
@@ -144,12 +144,13 @@
 <script>
 import {
   articlesClassification,
-  getClassificationData,
   publishArticle
 } from '@/api/articles.js'
 
-export default {
+import { publicLogic } from '@/mixins/index'
 
+export default {
+  mixins: [publicLogic],
   name: 'publish_article',
   props: {},
   data () {
@@ -239,9 +240,6 @@ export default {
         ]
       },
 
-      // 分类数据
-      classificationData: [],
-
       // 错误边框的显示和隐藏
       isBorderShow: false,
 
@@ -255,9 +253,9 @@ export default {
   computed: {},
 
   created () {
-    this.getClassification()
   },
   mounted () {
+
     this.timeId = setTimeout(() => {
       this.isLoadShow = true
     }, 330)
@@ -267,6 +265,7 @@ export default {
 
     // 点击确定创建分类
     async setSubmit () {
+
       const loading = this.$loading(this.$store.state.loading)
 
       try {
@@ -276,12 +275,17 @@ export default {
 
         // 200就是创建成功，否则就是有重复的项
         if (data.code === 200) {
-          this.$message.success(data.message)
 
+          this.$message.success(data.message)
+          
           this.dialogVisible = false
 
-          // 将成功成功的那一项添加到分类数据中
-          this.classificationData.push(this.classification)
+          // 判断一下第一次创建的时候不需要添加
+          if (this.classificationData.data) {
+
+            // 将成功成功的那一项添加到分类数据中
+            this.classificationData.data.push(this.classification)
+          }
 
           this.$event.$emit('removeClassAdmin')
 
@@ -289,12 +293,16 @@ export default {
 
           this.$event.$emit('removePage')
         } else {
+
           this.$message.warning(data.message)
         }
       } catch (error) {
+
         if (error === false) {
+
           this.$message.warning('分类名称不能为空哦!')
         }
+        
       } finally {
         // 必须执行的代码
         this.classification = {
@@ -306,17 +314,6 @@ export default {
 
         loading.close()
       }
-    },
-
-    // 获取创建的分类
-    async getClassification () {
-      const { data } = await getClassificationData({
-        id: this.classification.id
-      })
-
-      if (data.code !== 200) return
-
-      this.classificationData = data.data
     },
 
     // 取消的处理
@@ -347,7 +344,7 @@ export default {
 
         // 验证通过发表文章
         if (!this.isBorderShow) {
-          
+
           const { data } = await publishArticle(this.article)
 
           this.$message.success(data.message)
@@ -462,6 +459,7 @@ export default {
         .content {
           background: #ffffff;
           padding: 0;
+          margin: 0;
         }
         .submit_article {
           text-align: center;

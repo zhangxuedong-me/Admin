@@ -42,7 +42,7 @@
                         >
                             <el-option
                                 clearable
-                                v-for="(item, index) in artcileClass"
+                                v-for="(item, index) in classificationData.data"
                                 :key="index"
                                 :value="item.name"
                                 :label="item.name"
@@ -112,7 +112,11 @@ import {
   editArticleDetail,
   editArticle
 } from '@/api/articles'
+
+import { publicLogic } from '@/mixins/index'
+
 export default {
+  mixins: [publicLogic],
   name: 'edit_article',
   props: {
 
@@ -181,17 +185,13 @@ export default {
       isLoadShow: false,
 
       // 定时器的变量
-      timeId: null,
-
-      // 文章分类的数据
-      artcileClass: []
+      timeId: null
     }
   },
   computed: {
 
   },
   created () {
-    this.getClassificationData()
     this.getEditArticleDetail()
   },
   methods: {
@@ -261,16 +261,6 @@ export default {
       } finally {
         loading.close()
       }
-    },
-
-    // 获取文章分类的数据
-    async getClassificationData () {
-      const { data } = await getClassificationData({
-
-        id: this.$store.getters.getuserInfo.id
-      })
-
-      this.artcileClass = data.data
     },
 
     // 获取要修改的文章
