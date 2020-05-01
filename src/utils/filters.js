@@ -16,7 +16,9 @@ const filters = {
     if (status === undefined) return []
 
     if (status.length) {
+
       status.forEach(item => {
+        
         item.statusContent = statusText[item.status]
       })
     }

@@ -11,7 +11,7 @@
             remember=""
             :loadding="loadding"
             :dialogVisible="dialogVisible"
-            @userAgree="userAgree"
+            @userAgree="isAgree = true"
         />
         <el-dialog
             title="注册成功"
@@ -29,7 +29,6 @@
           title="用户协议"
           :visible.sync="isAgree"
           width="30%"
-          :before-close="handleClose"
         >
           <div class="agree_item">
             <p>管理员微信：18532620986</p>
@@ -55,7 +54,6 @@ export default {
     return {
       dialogVisible: false,
       loadding: false,
-      msg: '请填写用户名、密码、账号',
       isAgree: false
     }
   },
@@ -77,8 +75,6 @@ export default {
 
       // 按钮的加载状态
       this.loadding = true
-      // 屏幕的加载状态
-      const loading = this.$loading(this.$store.state.loading)
 
       try {
         // 注册信息是否通过验证
@@ -97,22 +93,16 @@ export default {
 
         this.$message.warning(data.message)
       } catch (error) {
-        this.$message.warning(this.msg)
+        this.$message.warning('请填写用户名、密码、账号')
       } finally {
         // 关闭加载状态
         this.loadding = false
-        loading.close()
       }
     },
 
     confirm () {
       this.dialogVisible = false
       this.$router.replace('/login')
-    },
-
-    userAgree () {
-      
-      this.isAgree = true
     }
   },
   components: {
@@ -122,17 +112,17 @@ export default {
 </script>
 
 <style scoped lang="less">
-    .container {
-        width: 100%;
-        height: 100vh;
-        background: url('../../assets/images/register_url2.jpg') no-repeat;
-        background-size: 100% 100vh;
-        .agree_item {
-          p {
-            margin: 20px 0;
-            font-family: "楷体";
-            font-size: 20px;
-          }
-        }
+.container {
+  width: 100%;
+  height: 100vh;
+  background: url("../../assets/images/register_url2.jpg") no-repeat;
+  background-size: 100% 100vh;
+  .agree_item {
+    p {
+      margin: 20px 0;
+      font-family: "楷体";
+      font-size: 20px;
     }
+  }
+}
 </style>

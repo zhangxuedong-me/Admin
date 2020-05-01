@@ -5,21 +5,28 @@
             <div class="userInfo_top">
                 <div></div>
                 <img
-                    v-lazy="$store.state.userInfo.headImg ? $store.state.userInfo.headImg : defaultImg"
+                    v-lazy="$store.getters.getuserInfo.headImg ? $store.getters.getuserInfo.headImg : defaultImg"
                     alt=""
                 />
-                <h4>{{ $store.state.userInfo.username }}</h4>
+                <h4>{{ $store.getters.getuserInfo.username }}</h4>
             </div>
             <div class="user_link">
                 <div class="user_github" @click="goGitHub">
-                    <img v-lazy="require('../../assets/images/github.jpg')" alt="">
+                    <img v-lazy="require('../../assets/images/github.jpg')" alt="" />
                     <span>GitHub</span>
                 </div>
                 <div class="user_github" @click="goWeiXin">
-                    <img v-lazy="require('../../assets/images/weixin.jpg')" alt="">
+                    <img v-lazy="require('../../assets/images/weixin.jpg')" alt="" />
                     <span>微信</span>
                 </div>
-                <el-button class="btn" type="primary" round @click="signOut">退出登录</el-button>
+                <el-button
+                    class="btn"
+                    type="primary"
+                    round
+                    @click="signOut"
+                >
+                    退出登录
+                </el-button>
             </div>
         </div>
 
@@ -88,11 +95,11 @@ export default {
   methods: {
 
     goGitHub () {
-      window.location.href = this.$store.state.userInfo.github
+      window.location.href = this.$store.getters.getuserInfo.github
     },
 
     goWeiXin () {
-      window.location.href = this.$store.state.userInfo.weixin
+      window.location.href = this.$store.getters.getuserInfo.weixin
     },
 
     signOut () {
@@ -103,16 +110,16 @@ export default {
       window.sessionStorage.removeItem('nav_bar')
 
       // 清除用户的临时数组中的导航
-      this.$store.state.navBars = {
+      this.$store.state.user.navBars = {
         navBarArr: [{ path: '/first_page', name: '首页' }],
         index: 0
       }
 
       // 清除用户的权限
-      this.$store.state.roles = []
+      this.$store.state.user.roles = []
 
       // 清除用户的缓存
-      this.$store.state.cache = []
+      this.$store.state.user.cache = []
 
       this.$message.success('已退出登录')
 
@@ -126,114 +133,114 @@ export default {
 </script>
 
 <style scoped lang="less">
-    .container {
-        width: 100%;
-        height: 100%;
-        position: relative;
-        background: #353b4e;
-        background-size: 100% 100%;
-        overflow: hidden;
-
-        .el-menu {
-            width: 260px;
-            height: 100vh;
-            background: none;
-            padding-top: 280px;
-            box-sizing: border-box;
-            border: none;
-            /deep/ .el-menu {
-                background: none;
-            }
-
-            /deep/ .el-submenu {
-                .el-submenu__title:hover {
-                    background: #fad526;
-                    color: #ffffff !important;
-                }
-                .el-submenu__title {
-                    font-size: 16px;
-                    i {
-                        color: #ffffff;
-                    }
-                }
-            }
-            .el-menu-item:hover {
-                background: #19b0f6;
-                color: #cd53fb !important;;
-            }
-            .el-menu-item {
-                width: 100vmax;
-                font-size: 16px;
-                i {
-                    color: #ffffff;
-                }
-            }
-        }
-        .is-active {
-            color: #942af6 !important;
-        }
-        .userInfo {
-            position: absolute;
-            top: 30px;
-            left: 30%;
-            z-index: 200;
-            .userInfo_top {
-                position: relative;
-                img {
-                    width: 58px;
-                    height: 58px;
-                    border-radius: 50%;
-                    border: #f84c1d solid 6px;
-                }
-                h4 {
-                    margin: 10px 15px;
-                    color: #ffffff;
-                    font-weight: 400;
-                }
-                div {
-                    width: 70px;
-                    height: 70px;
-                    border-radius: 50%;
-                    position: absolute;
-                    box-shadow: 0px 0px 16px #101010;
-                }
-            }
-            .user_link {
-                .user_github {
-                    display: flex;
-                    align-items: center;
-                    cursor: pointer;
-                    position: absolute;
-                    left: -36px;
-                    top: 130px;
-                    width: 100px;
-                    img {
-                        width: 20px;
-                        height: 20px;
-                        border-radius: 50%;
-                    }
-                    span {
-                        font-size: 12px;
-                        color: #ffffff;
-                        margin-left: 4px;
-                    }
-                }
-                .user_github:nth-of-type(2) {
-                    left: 60px;
-                    span {
-                        display: flex;
-                    }
-                }
-                .btn {
-                    position: absolute;
-                    top: 180px;
-                    height: 20px;
-                    line-height: 4px;
-                    padding: 16px;
-                    left: -10px;
-                    background: #22fd05;
-                }
-            }
-        }
+@import url('../../styles/variables.less');
+.container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: @sideBack;
+  background-size: 100% 100%;
+  overflow: hidden;
+  .el-menu {
+    width: 260px;
+    height: 100vh;
+    background: none;
+    padding-top: 280px;
+    box-sizing: border-box;
+    border: none;
+    /deep/ .el-menu {
+      background: none;
     }
+
+    /deep/ .el-submenu {
+      .el-submenu__title:hover {
+        background: @menuBack;
+        color: @menuColor !important;
+      }
+      .el-submenu__title {
+        font-size: @menuSize;
+        i {
+          color: #ffffff;
+        }
+      }
+    }
+    .el-menu-item:hover {
+      background: @menuBack;
+      color: @menuColor !important;
+    }
+    .el-menu-item {
+      width: 100vmax;
+      font-size: @menuSize;
+      i {
+        color: #ffffff;
+      }
+    }
+  }
+  .is-active {
+    color: #942af6 !important;
+  }
+  .userInfo {
+    position: absolute;
+    top: 30px;
+    left: 30%;
+    z-index: 200;
+    .userInfo_top {
+      position: relative;
+      img {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        border: #f84c1d solid 6px;
+      }
+      h4 {
+        margin: 10px 15px;
+        color: #ffffff;
+        font-weight: 400;
+      }
+      div {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        position: absolute;
+        box-shadow: 0px 0px 16px #101010;
+      }
+    }
+    .user_link {
+      .user_github {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        position: absolute;
+        left: -36px;
+        top: 130px;
+        width: 100px;
+        img {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+        }
+        span {
+          font-size: 12px;
+          color: #ffffff;
+          margin-left: 4px;
+        }
+      }
+      .user_github:nth-of-type(2) {
+        left: 60px;
+        span {
+          display: flex;
+        }
+      }
+      .btn {
+        position: absolute;
+        top: 180px;
+        height: 20px;
+        line-height: 4px;
+        padding: 16px;
+        left: -10px;
+        background: #22fd05;
+      }
+    }
+  }
+}
 </style>

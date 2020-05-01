@@ -12,8 +12,18 @@
             </div>
         </div>
         <div class="echarts">
-            <div class="articles" ref="articles" style="width: 260px;height: 260px;"></div>
-            <div class="articles" ref="comment" style="width: 260px;height: 260px;"></div>
+            <div
+              class="articles"
+              ref="articles"
+              style="width: 260px;height: 260px;"
+            >
+            </div>
+            <div
+              class="articles"
+              ref="comment"
+              style="width: 260px;height: 260px;"
+            >
+            </div>
         </div>
     </div>
 </template>

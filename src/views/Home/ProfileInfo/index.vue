@@ -22,25 +22,30 @@
                         </el-tooltip>
                     </h4>
                     <div class="info_show">
-                        <img :src="$store.state.userInfo.headImg" alt="" />
+                        <img :src="$store.getters.getuserInfo.headImg" alt="" />
                         <el-tooltip
                             class="item"
                             effect="dark"
                             content="修改用户头像"
                             placement="right-start"
                         >
-                            <el-link @click="editImg" type="primary">修改头像</el-link>
+                            <el-link
+                                @click="getUserAndEditUser"
+                                type="primary"
+                            >
+                                修改头像
+                            </el-link>
                         </el-tooltip>
                     </div>
                     <transition name="fade">
                         <div class="info_item" v-if="isEditShow">
-                            <p>用户名:<span>{{ $store.state.userInfo.username }}</span></p>
-                            <p>性别:<span>{{ $store.state.userInfo.gender }}</span></p>
-                            <p>邮箱:<span>{{ $store.state.userInfo.Email }}</span></p>
-                            <p>ID:<span>{{ $store.state.userInfo.id }}</span></p>
+                            <p>用户名:<span>{{ $store.getters.getuserInfo.username }}</span></p>
+                            <p>性别:<span>{{ $store.getters.getuserInfo.gender }}</span></p>
+                            <p>邮箱:<span>{{ $store.getters.getuserInfo.Email }}</span></p>
+                            <p>ID:<span>{{ $store.getters.getuserInfo.id }}</span></p>
                             <p>个人介绍:
                                 <span>
-                                    {{ $store.state.userInfo.introduce }}
+                                    {{ $store.getters.getuserInfo.introduce }}
                                 </span>
                             </p>
                         </div>
@@ -59,7 +64,9 @@
                                         <el-form-item prop="username">
                                             <div class="edit_username">
                                                 <h4>
-                                                    <span class="el-icon-s-custom"></span>
+                                                    <span class="el-icon-s-custom">
+
+                                                    </span>
                                                     <span>用户名</span>
                                                 </h4>
                                                 <el-input
@@ -72,10 +79,13 @@
                                         <el-form-item>
                                             <div class="edit_username two">
                                                 <h4>
-                                                    <span class="el-icon-s-check"></span>
+                                                    <span class="el-icon-s-check">
+                                                    </span>
                                                     <span>性别</span>
                                                 </h4>
-                                                <el-radio-group v-model="userInfo.gender">
+                                                <el-radio-group
+                                                    v-model="userInfo.gender"
+                                                >
                                                     <el-radio label="男">男</el-radio>
                                                     <el-radio label="女">女</el-radio>
                                                 </el-radio-group>
@@ -84,7 +94,8 @@
                                         <el-form-item prop="Email">
                                             <div class="edit_username">
                                                 <h4>
-                                                    <span class="el-icon-message"></span>
+                                                    <span class="el-icon-message">
+                                                    </span>
                                                     <span>邮箱号</span>
                                                 </h4>
                                                 <el-input
@@ -97,7 +108,8 @@
                                         <el-form-item prop="password">
                                             <div class="edit_username">
                                                 <h4>
-                                                    <span class="el-icon-view"></span>
+                                                    <span class="el-icon-view">
+                                                    </span>
                                                     <span>密码</span>
                                                 </h4>
                                                 <el-input
@@ -199,9 +211,11 @@
 </template>
 
 <script>
-import { getUserImg, editUserInfo } from '@/api/user'
+import { editUserInfo } from '@/api/user'
+import { publicLogic } from '@/mixins/index'
 export default {
   name: 'profile_info',
+  mixins: [publicLogic],
   props: {
 
   },
@@ -211,78 +225,22 @@ export default {
       // 用户头像弹框的状态
       dialogTableVisible: false,
 
-      // 获取用户图片   
-      pages: {
-        currentPage: 1,
-        pageSize: 10,
-        type: 'user'
-      },
-
       // 修改的用户信息   
       userInfo: {
-          id: this.$store.state.userInfo.id,
-          username: this.$store.state.userInfo.username,
-          Email: this.$store.state.userInfo.Email,
-          gender: this.$store.state.userInfo.gender,
-          password: this.$store.state.userInfo.password,
-          headImg: this.$store.state.userInfo.headImg,
-          github: this.$store.state.userInfo.github,
-          weixin: this.$store.state.userInfo.weixin,
-          token: this.$store.state.userInfo.token,
-          introduce: this.$store.state.userInfo.introduce
-      },
-
-      // 验证用户修改提交的验证   
-      userInfoRules: {
-         username: [
-            {
-              required: true,
-              message: '请输入用户名',
-              trigger: 'blur'
-            },
-            {
-              pattern: /^[\u4e00-\u9fa5]{2,6}$/,
-              message: '用户名格式有误',
-              trigger: 'blur'
-            }
-          ],
-          password: [
-            {
-                required: true,
-                message: '请输入密码',
-                trigger: 'blur'
-            },
-            {
-                pattern: /^(?=.*[a-z])(?=.*\d)[^]{5,16}$/,
-                message: '密码格式最少5位包括字母，最多不超过11位',
-                trigger: 'blur'
-            }
-          ],
-          Email: [
-            {
-                required: true,
-                message: '请输入邮箱号',
-                trigger: 'blur'
-            },
-            {
-                pattern: /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/,
-                message: '邮箱格式有误',
-                trigger: 'blur'
-            }
-          ]
+          id: this.$store.getters.getuserInfo.id,
+          username: this.$store.getters.getuserInfo.username,
+          Email: this.$store.getters.getuserInfo.Email,
+          gender: this.$store.getters.getuserInfo.gender,
+          password: this.$store.getters.getuserInfo.password,
+          headImg: this.$store.getters.getuserInfo.headImg,
+          github: this.$store.getters.getuserInfo.github,
+          weixin: this.$store.getters.getuserInfo.weixin,
+          token: this.$store.getters.getuserInfo.token,
+          introduce: this.$store.getters.getuserInfo.introduce
       },
 
       // 用户信息修改显示状态   
       isEditShow: true,
-
-      // 用户图片数据   
-      headImgData: {},
-
-      // 点击每一张的图片  
-      selectedImg: {
-        id: '',
-        imgSrc: ''
-      },
 
       // 根据不同的身份显示不同的信息   
       isIdentity: true,
@@ -302,7 +260,9 @@ export default {
 
   },
   watch: {
+
       userInfo: {
+
         handler: function (val) {
 
             this.startHttp = true
@@ -312,26 +272,19 @@ export default {
   },
   methods: {
 
-    // 获取用户图片
-    async editImg () {
-
-      this.dialogTableVisible = true
-
-      const { data } = await getUserImg(this.pages)
-      this.headImgData = data
-    },
-
     // 点击保存保存修改资料
     keepEdit () {
       
       // 判断一下当数据内容发生改变再发送请求   
       if (this.startHttp) {
 
-          this.editUserInfo()
+          this.editUserInfo(true)
           return
       }
 
       this.$message.success(this.msg)
+
+      this.isEditShow = true
       
     },
 
@@ -339,16 +292,19 @@ export default {
     pageChange (page) {
 
       this.pages.currentPage = page
-      this.editImg()
+
+      // 获取用户图片   
+      this.getUserAndEditUser()
     },
 
-    async editUserInfo () {
-
-      const loading = this.$loading(this.$store.state.loading)
+    async editUserInfo (status) {
 
       try {
           
-         await this.$refs.editForm.validate()
+         if (status) {
+
+             await this.$refs.editForm.validate()
+         }
 
          await this.$confirm.confirm('亲，您确定要修改自己的信息吗?', '提示', {
           confirmButtonText: '确定',
@@ -361,7 +317,7 @@ export default {
           ...this.userInfo,
           headImg: this.selectedImg.imgSrc ? this.selectedImg.imgSrc : this.userInfo.headImg
         })
-
+        
         this.startHttp = false
 
         this.dialogTableVisible = false
@@ -386,9 +342,6 @@ export default {
 
           error === false ? this.$message.warning('请按正规的手续填写信息') : ''
           
-      } finally {
-
-        loading.close()
       }
     },
 
@@ -400,6 +353,12 @@ export default {
 
     tabClick (type) {
 
+      this.selectedImg = {
+        id: '',
+        imgSrc: '',
+        type: ''
+      }
+
       this.pages.currentPage = 1
 
       this.pages.type = type
@@ -409,19 +368,22 @@ export default {
         if (this.$store.getters.roles.includes('admin')) {
 
           this.isIdentity = true
+
         } else {
 
           this.isIdentity = false
           this.$message.warning('您还不是管理员，没有操作权限')
         }
-
-        this.editImg()
+        
+        // 获取用户图片  
+        this.getUserAndEditUser()
         return
       }
 
       this.isIdentity = true
-
-      this.editImg()
+      
+      // 获取用户图片  
+      this.getUserAndEditUser()
     }
   },
   components: {
@@ -436,171 +398,170 @@ export default {
 </script>
 
 <style scoped lang="less">
+@import url('../../../styles/variables.less');
 .profile_container {
-    padding: 80px 30px 100px 30px;
-    /deep/ .el-card {
-        .el-card__header {
-            text-align: center;
-            .el-icon-edit {
-                color: #f5b460;
-                font-size: 22px;
-            }
-            .edit_info:hover {
-                color: #f5b460;
-            }
-            .edit_info {
-                color: #46c5fa;
-                padding-left: 10px;
-                font-family: "楷体";
-                font-size: 22px;
-            }
+  padding: 80px 30px 100px 30px;
+  /deep/ .el-card {
+    .el-card__header {
+      text-align: center;
+      .el-icon-edit {
+        color: #f5b460;
+        font-size: 22px;
+      }
+      .edit_info:hover {
+        color: #f5b460;
+      }
+      .edit_info {
+        color: #46c5fa;
+        padding-left: 10px;
+        font-family: "楷体";
+        font-size: 22px;
+      }
+    }
+    .edit {
+      display: flex;
+      .edit_item {
+        width: 900px;
+        height: 360px;
+        border: #ccc solid 1px;
+        margin: 30px;
+        display: flex;
+        position: relative;
+        > img {
+          width: 360px;
+          height: 100%;
+          margin-left: 50px;
         }
-        .edit{
+        > h4 {
+          position: absolute;
+          left: 46%;
+          top: 20px;
+        }
+        .info_show {
+          padding-top: 26px;
+          img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 50px 20px 20px 40px;
+          }
+          .el-link {
+            width: 60px;
+            display: block;
+            margin-top: 10px;
+            margin-left: 60px;
+          }
+        }
+        .edit_show {
+          .edit_show_item {
             display: flex;
-            .edit_item {
-                width: 900px;
-                height: 360px;
-                border: #ccc solid 1px;
-                margin: 30px;
+            .edit_show_left {
+              padding-top: 20px;
+              padding-left: 30px;
+              .el-form {
+                .el-form-item {
+                  margin: 0;
+                  padding: 0;
+                  .el-form-item__content {
+                    line-height: 0;
+                  }
+                }
+              }
+              .edit_username {
                 display: flex;
-                position: relative;
-                >img {
-
-                    width: 360px;
-                    height: 100%;
-                    margin-left: 50px;
+                align-items: center;
+                margin-top: 20px;
+                h4 {
+                  width: 140px;
+                  padding-bottom: 10px;
+                  color: #afafaf;
+                  span:nth-of-type(1) {
+                    font-size: 18px;
+                    padding-right: 6px;
+                    color: #73c7f2;
+                  }
+                  font-family: "楷体";
                 }
-                >h4 {
-                    position: absolute;
-                    left: 46%;
-                    top: 20px;
-                }
-                .info_show {
-                    padding-top: 26px;
-                    img {
-                        width: 100px;
-                        height: 100px;
-                        border-radius: 50%;
-                        margin: 50px 20px 20px 40px;
-                    }
-                    .el-link {
-                        width: 60px;
-                        display: block;
-                        margin-top: 10px;
-                        margin-left: 60px;
-                    }
-                }
-                .edit_show {
-                    .edit_show_item {
-                        display: flex;
-                        .edit_show_left {
-                            padding-top: 20px;
-                            padding-left: 30px;
-                            .el-form {
-                                .el-form-item {
-                                    margin: 0;
-                                    padding: 0;
-                                    .el-form-item__content {
-
-                                        line-height: 0;
-                                    }
-                                }
-                            }
-                            .edit_username {
-                                display: flex;
-                                align-items: center;
-                                margin-top: 20px;
-                                h4 {
-                                    width: 140px;
-                                    padding-bottom: 10px;
-                                    color: #afafaf;
-                                    span:nth-of-type(1) {
-                                        font-size: 18px;
-                                        padding-right: 6px;
-                                        color: #73c7f2;
-                                    }
-                                    font-family: "楷体";
-                                }
-                            }
-                        }
-                        .right {
-                            padding-top: 20px;
-                            padding-left: 20px;
-                        }
-                        .two {
-                            h4 {
-                                width: 86px;
-                            }
-                        }
-                    }
-                    .edit_submit {
-                        margin-top: 46px;
-                        margin-left: 50px;
-                        .el-button {
-                            margin: 0 20px;
-                        }
-                    }
-                }
-                .info_item {
-                    position: relative;
-                    margin: 66px 0 0 80px;
-                    p {
-                        line-height: 40px;
-                        font-size: 14px;
-                        color: #8d8e8e;
-                        span {
-                            font-size: 16px;
-                            margin-left: 16px;
-                            color: #46c5fa;
-                            font-family: "楷体";
-                        }
-                    }
-                    P:nth-of-type(5) {
-                        position: absolute;
-                        left: -220px;
-                        top: 220px;
-                        color: #f8b359;
-                        font-size: 20px;
-                        font-family: "楷体";
-                        span {
-                            color: #aeafaf;
-                            font-size: 18px;
-                        }
-                    }
-                }
-                .edit_back {
-                    width: 100%;
-                    height: 100%;
-                    position: absolute;
-                    right: -480px;
-                    img {
-                        width: 420px;
-                        height: 100%;
-                    }
-                }
+              }
             }
+            .right {
+              padding-top: 20px;
+              padding-left: 20px;
+            }
+            .two {
+              h4 {
+                width: 86px;
+              }
+            }
+          }
+          .edit_submit {
+            margin-top: 46px;
+            margin-left: 50px;
+            .el-button {
+              margin: 0 20px;
+            }
+          }
         }
-    }
-    .el-dialog__wrapper {
-        .el-dialog {
-            .el-dialog__header {
-                .el-icon-s-custom {
-                    font-size: 20px;
-                    color: #69b0f8;
-                }
-                span {
-                    color: #898a8a;
-                    font-size: 16px;
-                    margin-left: 10px;
-                }
+        .info_item {
+          position: relative;
+          margin: 66px 0 0 80px;
+          p {
+            line-height: 40px;
+            font-size: 14px;
+            color: #8d8e8e;
+            span {
+              font-size: 16px;
+              margin-left: 16px;
+              color: #46c5fa;
+              font-family: @family;
             }
-            .el-dialog__body {
-                .el-pagination {
-                    text-align: center;
-                    margin-top: 30px;
-                }
+          }
+          p:nth-of-type(5) {
+            position: absolute;
+            left: -220px;
+            top: 220px;
+            color: #f8b359;
+            font-size: 20px;
+            font-family: @family;
+            span {
+              color: #aeafaf;
+              font-size: 18px;
             }
+          }
         }
+        .edit_back {
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          right: -480px;
+          img {
+            width: 420px;
+            height: 100%;
+          }
+        }
+      }
     }
+  }
+  .el-dialog__wrapper {
+    .el-dialog {
+      .el-dialog__header {
+        .el-icon-s-custom {
+          font-size: 20px;
+          color: #69b0f8;
+        }
+        span {
+          color: #898a8a;
+          font-size: 16px;
+          margin-left: 10px;
+        }
+      }
+      .el-dialog__body {
+        .el-pagination {
+          text-align: center;
+          margin-top: 30px;
+        }
+      }
+    }
+  }
 }
 </style>

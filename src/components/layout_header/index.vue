@@ -46,37 +46,38 @@ export default {
 </script>
 
 <style scoped lang="less">
-    .container {
-        width: 100%;
-        height: 100px;
-        background: #353b4e;
-        background-size: 100% 80px;
-        position: fixed;
-        z-index: 1000;
-        overflow: hidden;
-        padding: 0;
-        margin: 0;
-        .header {
-            height: 80px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0px 20px;
-            h4 {
-                font-size: 26px;
-                color: #c14df7;
-                font-family: "楷体";
-            }
-            span {
-                font-size: 14px;
-                font-family: "黑体";
-                color: #05f5f8;
-                cursor: pointer;
-                margin-right: 300px;
-            }
-            span:hover {
-                color: #ffffff;
-            }
-        }
+@import url('../../styles/variables.less');
+.container {
+  width: 100%;
+  height: 100px;
+  background: @sideBack;
+  background-size: 100% 80px;
+  position: fixed;
+  z-index: 1000;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  .header {
+    height: 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 20px;
+    h4 {
+      font-size: 26px;
+      color: #c14df7;
+      font-family: @family;
     }
+    span {
+      font-size: 14px;
+      font-family: "黑体";
+      color: #05f5f8;
+      cursor: pointer;
+      margin-right: 300px;
+    }
+    span:hover {
+      color: #ffffff;
+    }
+  }
+}
 </style>

@@ -1,5 +1,5 @@
 // 把公共路由和权限的路由导出来
-import router, { publicRoutesMap, asyncRoutesMap } from '../router'
+import router, { publicRoutesMap, asyncRoutesMap } from '@/router'
 
 // 定义一个函数用来筛选后端返回来的权限数据，如果筛选成功的话返回true，否则false
 function hasPerMission (roles, route) {
@@ -65,7 +65,6 @@ const permission = {
     }
   },
   getters: {
-
     // 只要权限路由数组发生变化就重新计算
     addRouters (state) {
       return state.routers

@@ -1,6 +1,6 @@
 <template>
-  <div class="container">
-    <div class="publish_container">
+  <div class="publish_container">
+    <div class="new_article">
       <div class="publish_title">
         <h4>新建文章</h4>
       </div>
@@ -10,7 +10,11 @@
             <el-form-item prop="article_title">
               <div class="publish_articles_item">
                 <h4>文章标题</h4>
-                <el-input v-model="article.article_title" placeholder="请输入标题"></el-input>
+                <el-input
+                  v-model="article.article_title"
+                  placeholder="请输入标题"
+                >
+                </el-input>
               </div>
             </el-form-item>
             <el-form-item>
@@ -49,18 +53,29 @@
                 </div>
                 <div class="publish_articles_item">
                   <h4>关键字</h4>
-                  <el-input v-model="article.article_keyword" placeholder="关键字，查找文章的神器哦!" clearable></el-input>
+                  <el-input
+                    v-model="article.article_keyword"
+                    placeholder="关键字，查找文章的神器哦!"
+                    clearable
+                  >
+                  </el-input>
                 </div>
               </div>
             </el-form-item>
             <el-form-item>
-              <el-tooltip effect="dark" content="亲! 新建一个分类把，可以更好的管理您的文章" placement="top-start">
+              <el-tooltip
+                effect="dark"
+                content="亲! 新建一个分类把，可以更好的管理您的文章"
+                placement="top-start"
+              >
                 <el-button
                   class="set_class_name"
                   type="success"
                   round
                   @click="dialogVisible = true"
-                >创建分类</el-button>
+                >
+                  创建分类
+                </el-button>
               </el-tooltip>
 
               <el-dialog
@@ -82,7 +97,12 @@
                     :hide-required-asterisk="true"
                   >
                     <el-form-item prop="name" label="名称">
-                      <el-input placeholder="请输入名称" v-model="classification.name" clearable></el-input>
+                      <el-input
+                        placeholder="请输入名称"
+                        v-model="classification.name"
+                        clearable
+                      >
+                      </el-input>
                     </el-form-item>
                     <el-form-item label="描述">
                       <el-input
@@ -92,7 +112,8 @@
                         :rows="2"
                         :maxlength="20"
                         show-word-limit
-                      ></el-input>
+                      >
+                      </el-input>
                     </el-form-item>
                   </el-form>
                 </div>
@@ -131,8 +152,20 @@
               </div>
             </el-form-item>
             <el-form-item class="submit_article">
-              <el-button @click="publishArticleAndDraft(true)" type="success" plain>发布文章</el-button>
-              <el-button @click="publishArticleAndDraft(false)" type="info" plain>存为草稿</el-button>
+              <el-button
+                @click="publishArticleAndDraft(true)"
+                type="success"
+                plain
+              >
+                发布文章
+              </el-button>
+              <el-button
+                @click="publishArticleAndDraft(false)"
+                type="info"
+                plain
+              >
+                存为草稿
+              </el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -155,19 +188,6 @@ export default {
   props: {},
   data () {
     return {
-      // 发表文章像后端提交的数据
-      article: {
-        article_title: '',
-        publish_time: '',
-        selectVal: '',
-        article_auther: this.$store.getters.getuserInfo.username,
-        article_keyword: '',
-        article_describe: '',
-        content: '',
-        status: 0,
-        id: this.$store.getters.getuserInfo.id,
-        isProhibit: true
-      },
 
       // 新建分类提交的数据
       classification: {
@@ -179,34 +199,6 @@ export default {
 
       // 弹框的显示状态
       dialogVisible: false,
-
-      // 下拉日期的配置
-      pickerOptions: {
-        shortcuts: [
-          {
-            text: '今天',
-            onClick (picker) {
-              picker.$emit('pick', new Date())
-            }
-          },
-          {
-            text: '昨天',
-            onClick (picker) {
-              const date = new Date()
-              date.setTime(date.getTime() - 3600 * 1000 * 24)
-              picker.$emit('pick', date)
-            }
-          },
-          {
-            text: '一周前',
-            onClick (picker) {
-              const date = new Date()
-              date.setTime(date.getTime() - 3600 * 1000 * 24 * 7)
-              picker.$emit('pick', date)
-            }
-          }
-        ]
-      },
 
       // 新建分类的验证
       classificationRules: {
@@ -224,35 +216,19 @@ export default {
         ]
       },
 
-      // 文章提交的验证
-      articleRules: {
-        article_title: [
-          {
-            required: true,
-            message: '文章标题不能为空',
-            trigger: 'blur'
-          },
-          {
-            max: 10,
-            message: '文章标题不能超过10个字符',
-            trigger: 'blur'
-          }
-        ]
-      },
-
       // 错误边框的显示和隐藏
       isBorderShow: false,
 
       // 富文本框的显示状态
       isLoadShow: false,
-
-      // 定时器的变量
-      timeId: null
     }
   },
   computed: {},
 
   created () {
+
+    // 获取分类数据
+    this.getClassification()
   },
   mounted () {
 
@@ -266,9 +242,8 @@ export default {
     // 点击确定创建分类
     async setSubmit () {
 
-      const loading = this.$loading(this.$store.state.loading)
-
       try {
+
         // 验证通过发送请求
         const isOk = await this.$refs.form.validate()
         const { data } = await articlesClassification(this.classification)
@@ -280,11 +255,14 @@ export default {
           
           this.dialogVisible = false
 
-          // 判断一下第一次创建的时候不需要添加
+          // 判断一下第一次创建的时候不需要添加，直接赋值给数组即可
           if (this.classificationData.data) {
 
             // 将成功成功的那一项添加到分类数据中
             this.classificationData.data.push(this.classification)
+          } else {
+            
+            this.classificationData = data
           }
 
           this.$event.$emit('removeClassAdmin')
@@ -311,8 +289,6 @@ export default {
           describe: '',
           id: this.$store.getters.getuserInfo.id
         }
-
-        loading.close()
       }
     },
 
@@ -328,6 +304,7 @@ export default {
 
     // 点击之后发表文章或者保存文章
     async publishArticleAndDraft (status) {
+
       /*
         status 如果是true的话就是发表文章，false就是存为草稿
         this.article.status为0是全部文章，为1是草稿
@@ -335,9 +312,8 @@ export default {
 
       status ? (this.article.status = 0) : (this.article.status = 1)
 
-      const loading = this.$loading(this.$store.state.loading)
-
       try {
+
         const isOk = await this.$refs.myForm.validate()
 
         this.isBorderShow = !this.article.content
@@ -360,20 +336,14 @@ export default {
           this.$message.warning('请填写文章的信息')
         }
       } catch (error) {
+
         this.isBorderShow = !this.article.content
 
         error === false ? this.$message.warning('请填写文章的信息') : ''
-      } finally {
-        loading.close()
       }
     }
   },
   components: {},
-
-  destroyed () {
-    clearTimeout(this.timeId)
-    this.timeId = null
-  },
 
   beforeRouteEnter (to, from, next) {
     next(vm => {
@@ -385,7 +355,7 @@ export default {
 </script>
 
 <style scoped lang="less">
-.container {
+.publish_container {
   width: 100%;
   height: 100%;
   margin-top: 60px;
@@ -393,7 +363,7 @@ export default {
   padding-right: 60px;
   box-sizing: border-box;
   padding-bottom: 1500px;
-  .publish_container {
+  .new_article {
     width: 100%;
     height: 100%;
     margin: 0px 20px;
@@ -469,16 +439,16 @@ export default {
           }
         }
         /deep/ .el-dialog__header {
-            .el-icon-edit {
-              color: #57d1f9;
-              font-size: 18px;
-            }
-            .text {
-              margin-left: 10px;
-              font-family: "楷体";
-              font-size: 18px;
-              color: #757676;
-            }
+          .el-icon-edit {
+            color: #57d1f9;
+            font-size: 18px;
+          }
+          .text {
+            margin-left: 10px;
+            font-family: "楷体";
+            font-size: 18px;
+            color: #757676;
+          }
         }
         .dialog_item {
           .el-form-item:nth-of-type(2) {
@@ -487,7 +457,6 @@ export default {
               resize: none;
             }
           }
-
         }
       }
     }

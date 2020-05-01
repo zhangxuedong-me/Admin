@@ -1,72 +1,17 @@
-<template>
-    <div class="container">
-        <div class="tabs">
-            <div
-                class="tabs_item"
-                v-for="(item, index) in navBarsData.navBarArr"
-                :key="index"
-                :class="index === navBarsData.index ? 'tabs_nav' : ''"
-            >
-                <span @click="navClick(item, index)">{{ item.name }}</span>
-                <i @click="close(index)" class="el-icon-close"></i>
-            </div>
-        </div>
-    </div>
-</template>
-
 <script>
-export default {
-  name: 'Navbar',
-  props: {
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+@Component
+export default class NavBar extends Vue {
 
-  },
-  data () {
-    return {
-      navBarsData: {},
-      defaultNav: {
-        path: '/first_page',
-        name: '首页'
-      }
-    }
-  },
-  computed: {
+  navBarsData = {}
 
-  },
-  created () {
+  defaultNav = {
+    path: '/first_page',
+    name: '首页'
+  }
 
-  },
-  mounted () {
+  nav (item, i) {
 
-  },
-  watch: {
-
-    $route: {
-      handler: function (val) {
-
-        val.name === 'edit_article'
-
-          ? this.$store.commit('SET_USERNAVBAR', {
-            path: `/${val.name}`,
-            name: val.meta.name,
-            id: val.params.id
-          })
-          :
-        // 存储用户的导航数据
-          this.$store.commit('SET_USERNAVBAR', {
-            path: val.path,
-            name: val.meta.name
-          })
-
-        this.navBarsData = this.$store.state.navBars
-      },
-
-      deep: true,
-      immediate: true
-    }
-  },
-  methods: {
-
-    navClick (item, i) {
       // 判断一下如果要去的那一项是当前项的的话就return，编辑页面需要特殊处理
 
       if (item.path === this.$route.path || `${item.path}/${item.id}` === this.$route.path) return
@@ -77,9 +22,9 @@ export default {
       item.id
         ? this.$router.replace(`${item.path}/${item.id}`)
         : this.$router.replace(item.path)
-    },
+  }
 
-    close (i) {
+  close (i) {
 
       const name = this.navBarsData.navBarArr[i].path.split('/')[1]
 
@@ -147,62 +92,115 @@ export default {
           }
         }
       }
-    }
+  }
+  
+  created () {
+    
+  }
 
-  },
-  components: {
+  render () {
+    return (
+      <div class="container">
+        <div class="tabs">
+            {
+              this.navBarsData.navBarArr.map((item, index) => {
+                return (
+                  <div
+                    class="tabs_item"
+                    key={ index }
+                    class={ [index === this.navBarsData.index ? 'tabs_nav' : '', 'tabs_item'] }
+                  >
+                    <span onClick={val => {
 
+                      this.nav(item, index)
+
+                    }}>{ item.name }</span>
+
+                    <i onClick={val => {
+
+                      this.close(index)
+
+                    }} class="el-icon-close"></i>
+                  </div>
+                )
+              })
+            }
+        </div>
+      </div>
+    )
+  }
+
+  @Watch('$route', { immediate: true, deep: true })
+  onChildChanged (val) {
+    val.name === 'edit_article'
+
+      ? this.$store.commit('SET_USERNAVBAR', {
+        path: `/${val.name}`,
+        name: val.meta.name,
+        id: val.params.id
+      })
+      :
+      // 存储用户的导航数据
+      this.$store.commit('SET_USERNAVBAR', {
+        path: val.path,
+        name: val.meta.name
+      })
+
+      this.navBarsData = this.$store.getters.navBars
   }
 }
 </script>
 
 <style scoped lang="less">
-    .container {
-        width: 100%;
-        height: 100%;
-        .tabs {
-            position: fixed;
-            z-index: 20;
-            top: 100px;
-            width: 100%;
-            height: 40px;
-            background: #ffffff;
-            box-shadow: 6px 6px 8px 2px #cccccc;
-            display: flex;
-            .tabs_item {
-                height: 24px;
-                border: #cccccc solid 1px;
-                padding: 0px 10px;
-                font-size: 16px;
-                line-height: 24px;
-                margin-right: 10px;
-                color: #666666;
-                font-family: "楷体";
-                box-shadow: 0 0 6px 2px #cccccc;
-                margin-top: 6px;
-                cursor: pointer;
-                i {
-                    margin-left: 8px;
-                }
-                i:hover {
-                    color: #07f9e5;
-                }
-            }
-            .tabs_item:hover {
-                box-shadow: 2px 2px 10px 6px #cccccc;
-            }
-            .tabs_nav {
-                background: #0f8efa;
-                color: #ffffff
-            }
-            .tabs_nav i:hover {
-                color: #f79305;
-            }
-        }
-        .tabs {
-            .tabs_item:nth-of-type(1) {
-                margin-left: 10px;
-            }
-        }
+@import url('../../styles/variables.less');
+.container {
+  width: 100%;
+  height: 100%;
+  .tabs {
+    position: fixed;
+    z-index: 20;
+    top: 100px;
+    width: 100%;
+    height: 40px;
+    background: #ffffff;
+    box-shadow: 6px 6px 8px 2px #cccccc;
+    display: flex;
+    .tabs_item {
+      height: 24px;
+      border: #cccccc solid 1px;
+      padding: 0px 10px;
+      font-size: 16px;
+      line-height: 24px;
+      margin-right: 10px;
+      color: #666666;
+      font-family: @family;
+      box-shadow: 0 0 6px 2px #cccccc;
+      margin-top: 6px;
+      cursor: pointer;
+      i {
+        margin-left: 8px;
+      }
+      i:hover {
+        color: #07f9e5;
+      }
     }
+    .tabs_item:hover {
+      box-shadow: 2px 2px 10px 6px #cccccc;
+    }
+    .tabs_nav {
+      background: #0f8efa;
+      color: #ffffff;
+    }
+    .tabs_nav i:hover {
+      color: #f79305;
+    }
+  }
+  .tabs {
+    .tabs_item:nth-of-type(1) {
+      margin-left: 10px;
+    }
+  }
+}
 </style>
+
+

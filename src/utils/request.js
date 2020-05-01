@@ -1,21 +1,37 @@
 import axios from 'axios'
 import jsonBig from 'json-bigint'
 
-import store from '../store/index'
+import store from '@/store/index'
 
-import { message } from 'element-ui'
+import { message, Loading } from 'element-ui'
+
+import { config, loaddingConfig } from '@/utils/config'
 
 const request = axios.create({
-  baseURL: 'http://localhost:3000',
-  timeout: '6000'
+
+  baseURL: `${config.baseURL}${config.prot}`,
+  timeout: config.timeout
 })
+
 
 // 请求拦截器
 request.interceptors.request.use(config => {
-  // 每次登陆的时候将token插入到请求头中
-  config.headers.authorization = store.state.userInfo.token
+  
+  // 开始加载
+  Loading.service(loaddingConfig)
+
+  if (store.getters.getuserInfo.token) {
+
+    // 每次登陆的时候将token插入到请求头中
+    config.headers.authorization = store.getters.getuserInfo.token
+  }
+
   return config
+
 }, error => {
+
+  // 取消失败终止
+  Loading.service().close()
   return Promise.reject(error)
 })
 
@@ -30,10 +46,13 @@ request.defaults.transformResponse = [function (data) {
 
 // 响应拦截器
 request.interceptors.response.use(response => {
+
+  // 请求完毕取消加载
+  Loading.service().close()
   return response
 }, error => {
-  console.log(error.response)
 
+  Loading.service().close()
   errorMsg(error.response)
 
   return Promise.reject(error)
@@ -41,6 +60,12 @@ request.interceptors.response.use(response => {
 
 // 异常处理
 function errorMsg (error) {
+
+  if (error) {
+
+    return
+  }
+
   switch (error.status) {
     case 400:
       message.error('亲，您查看的资料出现了错误')

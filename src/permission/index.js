@@ -1,5 +1,5 @@
-import router from '../router'
-import store from '../store'
+import router from '@/router'
+import store from '@/store'
 
 // 导入进度条
 import nprogress from 'nprogress'
@@ -18,9 +18,12 @@ router.beforeEach((to, from, next) => {
     } else {
       // 如果没有用户的权限数据，去拉取一下用户的权限数据
       if (store.getters.roles.length === 0) {
+
         store.dispatch('getUserAuth', store.getters.getuserInfo.token).then(res => {
+          
           // 调用该方法对用户的权限进行一次筛选
           store.dispatch('generateRoutes', res).then(() => {
+
             router.addRoutes(store.getters.addRouters)
 
             if (from.path !== '/login') {

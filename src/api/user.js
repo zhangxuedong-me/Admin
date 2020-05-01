@@ -1,4 +1,4 @@
-import request from '../utils/request'
+import request from '@/utils/request'
 
 // 用户登陆
 export const userLogin = params => request('GET', '/admin/user/login', params)

@@ -5,7 +5,10 @@
         <div class="article_search">
             <el-form ref="search_form" label-width="100px" label-position="right">
                 <el-form-item label="文章的状态">
-                    <el-radio-group text-color="#ffffff" v-model="article.status">
+                    <el-radio-group
+                      text-color="#ffffff"
+                      v-model="searchArticle.status"
+                    >
                         <el-radio :label="0">全部</el-radio>
                         <el-radio :label="1">草稿</el-radio>
                         <el-radio :label="2">待审核</el-radio>
@@ -16,7 +19,7 @@
                 <el-form-item label="创建的时间">
                     <el-date-picker
                         value-format="yyyy-MM-dd"
-                        v-model="article.publish_time"
+                        v-model="searchArticle.publish_time"
                         type="daterange"
                         range-separator="-"
                         start-placeholder="开始日期"
@@ -26,7 +29,7 @@
                 </el-form-item>
                 <el-form-item label="分类列表">
                     <el-select
-                        v-model="article.selectVal"
+                        v-model="searchArticle.selectVal"
                         placeholder="请选择"
                         clearable
                     >
@@ -42,13 +45,19 @@
                 <el-form-item label="文章的关键字">
                     <el-input
                         placeholder="请输入文章的关键字"
-                        v-model="article.article_keyword"
+                        v-model="searchArticle.article_keyword"
                         clearable
                     >
                     </el-input>
                 </el-form-item>
             </el-form>
-            <el-button @click="searchBtn(true)" class="search_btn" type="primary">搜索</el-button>
+            <el-button
+              @click="searchBtn(true)"
+              class="search_btn"
+              type="primary"
+            >
+              搜索
+            </el-button>
         </div>
         </div>
         <div class="articles_result">
@@ -108,29 +117,35 @@
                 >
                 <template slot-scope="scope">
                     <el-button
-                        @click="prohibitAndRecovery(scope.row)"
+                        @click="prohibitAndRecovery(scope.row, 'article')"
                         :type="scope.row.isProhibit ? 'warning' : 'primary'"
                         size="small"
                     >
                         {{ scope.row.isProhibit ? '禁止' : '恢复' }}
                     </el-button>
                     <el-button
-                        type="success"
+                        type="info"
                         size="small"
                         @click="editArticle(scope.row)"
                     >
                         编辑
                     </el-button>
-                    <el-button @click="deleteArticle(scope.row)" type="danger" size="small">删除</el-button>
+                    <el-button
+                      @click="deleteArticle(scope.row)"
+                      type="danger"
+                      size="small"
+                    >
+                      删除
+                    </el-button>
                 </template>
                 </el-table-column>
             </el-table>
             <el-pagination
                 background
                 layout="prev, pager, next"
-                :total="articleData.total"
-                :page-size="article.count"
-                :current-page.sync="article.page"
+                :total="articleData.total ? articleData.total : 1"
+                :page-size="searchArticle.count"
+                :current-page="searchArticle.page"
                 prev-text="上一页"
                 next-text="下一页"
                 @current-change="pageChange"
@@ -142,11 +157,10 @@
 </template>
 
 <script>
+
 import {
   getArticleData,
   deleteArticle,
-  prohibitAndRecovery
-
 } from '@/api/articles.js'
 
 import { publicLogic } from '@/mixins/index'
@@ -160,7 +174,7 @@ export default {
     return {
 
       // 搜索项的数据
-      article: {
+      searchArticle: {
         status: 0,
         publish_time: [],
         selectVal: '',
@@ -175,7 +189,9 @@ export default {
 
       startHttp: true,
 
-      msg: ''
+      msg: '',
+
+      articleTimeId: null
     }
   },
   beforeCreate () {
@@ -189,25 +205,27 @@ export default {
   methods: {
 
     // 获取相关条件的文章
-    async searchBtn (flag) {
-      // 如果搜索条件变化了再去发送请求
-      if (!this.startHttp) {
-        this.$message.success(this.msg)
-        return
-      }
+    searchBtn (flag) {
+      
+      clearTimeout(this.articleTimeId)
 
-      // 文章的加载状态
-      const loading = this.$loading(this.$store.state.loading)
+      this.articleTimeId = setTimeout(async () => {
 
-      try {
+        // 如果搜索条件变化了再去发送请求
+        if (!this.startHttp) {
+
+          this.$message.success(this.msg)
+          return
+        }
+
         // 搜索文章的请求
-        const { data } = await getArticleData(this.article)
+        const { data } = await getArticleData(this.searchArticle)
 
         this.msg = data.message
 
         // 如果点击的是搜索按钮的话，将页数重置为第一页
         if (flag) {
-          this.article.page = 1
+          this.searchArticle.page = 1
           this.$message.success(data.message)
         }
 
@@ -215,21 +233,20 @@ export default {
 
         this.articleData = data
         this.articleResult = data.data
-      } finally {
-        loading.close()
-      }
+      }, 0)
     },
 
     // 点击之后切换页码
     pageChange (page) {
-      this.article.page = page
-
+      this.searchArticle.page = page
       this.searchBtn()
     },
 
     // 删除文章
     async deleteArticle (obj) {
+
       try {
+
         await this.$confirm.confirm('真的要删除吗，删除之后无法找回？', '提示', {
           type: 'warning'
         })
@@ -247,27 +264,20 @@ export default {
           }
         })
 
+        // 每当当前页的数据全部删除完之后，就获取下一页数据
+        if (!this.articleResult || !this.articleResult.length) {
+
+            if (this.searchArticle.page >= 1) {
+
+              this.searchBtn()
+            }
+        }
+        
         this.$message.success(data.message)
 
-        this.article.page = 1
+        this.searchArticle.page = 1
       } catch (error) {
         error === 'cancel' ? this.$message('取消删除') : ''
-      }
-    },
-
-    // 禁止发布文章
-    async prohibitAndRecovery (item) {
-      try {
-        await this.$confirm.confirm('真的要操作此文章吗?', '提示', {
-          type: 'warning'
-        })
-
-        const { data } = await prohibitAndRecovery({ detailId: item.detailId })
-        item.isProhibit = !item.isProhibit
-
-        this.$message.success(data.message)
-      } catch (error) {
-        error === 'cancel' ? this.$message('已取消') : ''
       }
     },
 
@@ -278,6 +288,11 @@ export default {
       this.$event.$emit('removePage')
 
       this.$router.replace(`/edit_article/${row.detailId}`)
+    },
+
+    removePage () {
+
+      this.$store.commit('REMOVE_CACHE', 'articles_manage')
     }
 
   },
@@ -285,26 +300,23 @@ export default {
 
   },
   created () {
+
+    // 获取分类
+    this.getClassification()
     this.searchBtn()
+
+    this.$event.$on('removeArticle', this.removePage)
   },
   mounted () {
-    this.$event.$on('removeArticle', () => {
-      this.$store.commit('REMOVE_CACHE', 'articles_manage')
-    })
+
   },
   watch: {
 
-    article: {
+    searchArticle: {
 
       handler: function (newVal, oldVal) {
-        this.startHttp = true
 
-        // 如果当前页面的数据删除完毕去获取上页数据
-        if (!this.articleResult.length) {
-          if (this.article.page >= 1) {
-            this.searchBtn()
-          }
-        }
+        this.startHttp = true
       },
 
       deep: true
@@ -312,6 +324,12 @@ export default {
   },
   components: {
 
+  },
+  beforeDestroy () {
+
+    this.$event.$off('removeArticle', this.removePage)
+    clearTimeout(this.articleTimeId)
+    this.articleTimeId = null
   },
   beforeRouteEnter (to, from, next) {
     next(vm => {
@@ -322,93 +340,90 @@ export default {
 </script>
 
 <style scoped lang="less">
-    .container {
-        width: 100%;
-        height: 100vh;
-        padding: 60px 20px 0 20px;
-        box-sizing: border-box;
-        .card_container {
-            margin-bottom: 100px;
+.container {
+  width: 100%;
+  height: 100vh;
+  padding: 80px 20px 0 20px;
+  box-sizing: border-box;
+  .card_container {
+    margin-bottom: 100px;
+  }
+  .article_search {
+    background: rgba(176, 130, 233, 0.8);
+    padding: 2px 30px;
+    /deep/ .el-form-item {
+      padding-top: 6px;
+      .el-form-item__label {
+        color: #737372;
+      }
+      /deep/ .el-radio-group {
+        .el-radio {
+          .el-radio__label {
+            color: #4ea8f5;
+          }
         }
-        .article_search {
-            background: rgba(176, 130, 233, .8);
-            padding: 2px 30px;
-            /deep/ .el-form-item {
-                padding-top: 6px;
-                .el-form-item__label {
-                    color: #737372;
-                }
-                /deep/ .el-radio-group {
-                    .el-radio {
-                        .el-radio__label {
-                            color: #4ea8f5;
-                        }
-                    }
-                    .is-checked {
-                         .el-radio__label {
-                            color: #ffffff;
-                        }
-                    }
-
-                }
-                .el-input__inner {
-                    width: 260px;
-                }
-            }
-            .search_btn {
-                margin-bottom: 20px;
-                padding: 10px 100px;
-                margin-left: 100px;
-                margin-top: 20px;
-            }
+        .is-checked {
+          .el-radio__label {
+            color: #ffffff;
+          }
         }
-        .articles_result {
-            .articles_result_title {
-                height: 50px;
-                background: #90e1f9;
-                border-radius: 6px 6px 0 0;
-                line-height: 50px;
-                font-size: 18px;
-                color: #ffffff;
-                text-align: center;
-                .total_page {
-                    color: #f96d3c;
-                }
-            }
-            .el-table {
-                border: #90e1f9 solid 1px;
-                border-radius: 0 0 6px 6px;
-                padding-bottom: 20px;
-                /deep/ .el-table__header-wrapper {
-                    .el-table__header {
-                        .has-gutter {
-                            tr {
-                                .is-leaf {
-                                    text-align: center;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                /deep/ .el-table__body-wrapper {
-                    .el-table__body {
-                        .el-table__row {
-                            text-align: center;
-                            .red {
-                                color: #3d91f8;
-                                text-align: center;
-                            }
-                        }
-                    }
-                }
-
-            }
-            .el-pagination {
-
-                margin-top: 30px;
-                text-align: center;
-            }
-        }
+      }
+      .el-input__inner {
+        width: 260px;
+      }
     }
+    .search_btn {
+      margin-bottom: 20px;
+      padding: 10px 100px;
+      margin-left: 100px;
+      margin-top: 20px;
+    }
+  }
+  .articles_result {
+    .articles_result_title {
+      height: 50px;
+      background: #90e1f9;
+      border-radius: 6px 6px 0 0;
+      line-height: 50px;
+      font-size: 18px;
+      color: #ffffff;
+      text-align: center;
+      .total_page {
+        color: #f96d3c;
+      }
+    }
+    .el-table {
+      border: #90e1f9 solid 1px;
+      border-radius: 0 0 6px 6px;
+      padding-bottom: 20px;
+      /deep/ .el-table__header-wrapper {
+        .el-table__header {
+          .has-gutter {
+            tr {
+              .is-leaf {
+                text-align: center;
+              }
+            }
+          }
+        }
+      }
+
+      /deep/ .el-table__body-wrapper {
+        .el-table__body {
+          .el-table__row {
+            text-align: center;
+            .red {
+              color: #3d91f8;
+              text-align: center;
+            }
+          }
+        }
+      }
+    }
+    .el-pagination {
+      margin-top: 30px;
+      text-align: center;
+    }
+  }
+}
 </style>

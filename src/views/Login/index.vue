@@ -48,11 +48,11 @@ export default {
 
   },
   methods: {
+    
     async userLogin (userInfo, form, loadding) {
+
       // 开启按钮加载
       this.loadding = true
-      // 开启页面加载
-      const loading = this.$loading(this.$store.state.loading)
 
       try {
         // 表单验证通过
@@ -73,7 +73,6 @@ export default {
       } finally {
         // 无论登陆成功与否，加载状态必须关闭
         this.loadding = false
-        loading.close()
       }
     },
 
@@ -90,25 +89,24 @@ export default {
 </script>
 
 <style scoped lang="less">
-    .container {
-        width: 100%;
-        height: 100vh;
-        background: url('../../assets/images/login_url.jpg') no-repeat;
-        background-size: 100% 100vh;
-        .user_img {
-            position: absolute;
-            left: 47%;
-            top: 10%;
-            box-shadow: 0 0 10px 10px #75c6f9;
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            img {
-                width: 100%;
-                height: 100%;
-                border-radius: 50%;
-
-            }
-        }
+.container {
+  width: 100%;
+  height: 100vh;
+  background: url("../../assets/images/login_url.jpg") no-repeat;
+  background-size: 100% 100vh;
+  .user_img {
+    position: absolute;
+    left: 47%;
+    top: 10%;
+    box-shadow: 0 0 10px 10px #75c6f9;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
     }
+  }
+}
 </style>

@@ -25,9 +25,9 @@
                         <p class="user_title" slot="prepend">密码</p>
                     </el-input>
                 </el-form-item>
-                <el-form-item prop="mailbox" v-if="isRememberPwd">
+                <el-form-item prop="Email" v-if="isRememberPwd">
                     <el-input
-                        v-model="userInfo.mailbox"
+                        v-model="userInfo.Email"
                         clearable
                         type="text"
                     >
@@ -58,7 +58,7 @@
                         <el-radio label="女">女</el-radio>
                     </el-radio-group>
                     <el-button
-                        @click="dialogTableVisible = true"
+                        @click="getUserAndEditUser"
                         type="info"
                         class="select_img"
                     >
@@ -102,9 +102,10 @@
     </div>
 </template>
 <script>
-import { getUserImg } from '@/api/user'
+import { publicLogic } from '@/mixins/index'
 export default {
   name: 'Checking',
+  mixins: [publicLogic],
   props: {
     titleText: {
       type: String,
@@ -144,93 +145,40 @@ export default {
   },
   data () {
     return {
+
       // 考虑到去注册页面就不需要再获取值了，所以做了以下处理
       userInfo: JSON.parse(window.localStorage.getItem(this.remember)) || {
         username: '',
         password: '',
-        mailbox: '',
+        Email: '',
         checked: false,
         gender: '男',
         headImg: ''
       },
-      that: this,
-      userInfoRules: {
-        username: [
-          {
-            required: true,
-            message: '请输入用户名',
-            trigger: 'blur'
-          },
-          {
-            pattern: /^[\u4e00-\u9fa5]{2,6}$/,
-            message: '用户名格式有误',
-            trigger: 'blur'
-          }
-        ],
-        password: [
-          {
-            required: true,
-            message: '请输入密码',
-            trigger: 'blur'
-          },
-          {
-            pattern: /^(?=.*[a-z])(?=.*\d)[^]{5,16}$/,
-            message: '密码格式最少5位包括字母，最多不超过11位',
-            trigger: 'blur'
-          }
-        ],
-        mailbox: [
-          {
-            required: true,
-            message: '请输入邮箱号',
-            trigger: 'blur'
-          },
-          {
-            pattern: /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/,
-            message: '邮箱格式有误',
-            trigger: 'blur'
-          }
-        ],
-        checked: this.$route.path === '/login' ? [] : [
-          {
-            validator (rule, value, callback) {
-              value ? callback() : callback(new Error('请勾选用户协议'))
-            },
-            trigger: 'blur'
-          }
-        ]
-      },
+
       dialogTableVisible: false,
-      headImgData: {},
-      selectedImg: {
-        id: '',
-        imgSrc: ''
-      },
-      pages: {
-        currentPage: 1,
-        pageSize: 10,
-        type: 'user'
-      }
     }
   },
   computed: {
 
   },
   created () {
-    this.getUserHeadImg()
+
     this.$emit('usernameBlur', this.userInfo.username)
   },
   mounted () {
 
   },
   watch: {
+
     dialogVisible (newVal) {
+      
       if (newVal) return
 
       this.userInfo = {
         username: '',
         password: '',
-        mailbox: '',
+        Email: '',
         checked: false,
         gender: '男',
         headImg: ''
@@ -256,16 +204,14 @@ export default {
       this.$emit('loginMaypeRegister', this.userInfo, this.$refs.myForm)
     },
 
-    // 获取用户头像
-    async getUserHeadImg () {
-      const { data } = await getUserImg(this.pages)
-      this.headImgData = data
-    },
+
     pageChange (page) {
       this.pages.currentPage = page
-      this.getUserHeadImg()
+      this.getUserAndEditUser()
     },
+    
     selectDefine () {
+
       if (!this.selectedImg.imgSrc) {
         this.$message.warning('请先选择一张图片把')
         return
@@ -277,6 +223,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+
         this.userInfo.headImg = this.selectedImg.imgSrc
         this.dialogTableVisible = false
 
@@ -300,125 +247,123 @@ export default {
 </script>
 
 <style scoped lang="less">
-    .container {
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        .el-card {
-            width: 30%;
-            height: 54%;
-            margin: 150px auto;
-            background: rgba(53,113,249,.3);
-            border: none;
-            .el-card__header {
-                div {
-                    text-align: center;
-                    font-size: 20px;
-                    color: #6dddf5;
-                    font-weight: 700;
-                }
-            }
-            .el-form-item {
-                .el-input--suffix {
-                    /deep/ .el-input-group__prepend {
-                        background: #1689f4;
-                        border: none;
-                        font-size: 12px;
-                        vertical-align:none;
-                        color: #ffffff;
-                        padding: 0 16px;
-                    }
-                    /deep/.el-input__inner {
-                        background: rgba(207,208,208,.3);
-                        border: none;
-                        color: #ffffff;
-                    }
-
-                }
-                /deep/ .el-checkbox {
-                    .el-checkbox__label {
-                        color: #ffffff;
-                    }
-                }
-            }
-            /deep/ .agree_form {
-              .el-form-item__content {
-                height: 40px;
-                display: flex;
-              }
-            }
-            /deep/ .el-form-item:last-of-type {
-                .el-form-item__label {
-                    color: #2b90f6;
-                }
-                .el-form-item__content {
-                    .el-radio-group {
-                        .el-radio {
-                            color: #ffffff;
-
-                        }
-                    }
-                }
-                .select_img {
-                    width: 100px;
-                    margin-left: 120px;
-                    padding: 10px 0;
-                }
-            }
-            .spacing {
-                .el-input--suffix {
-                    /deep/ .el-input-group__prepend {
-                        padding: 0 22px;
-                    }
-                }
-            }
-            .el-button {
-                width: 100%;
-                border-radius: 6px;
-            }
-            .user_register {
-                width: 100px;
-                padding: 10px 10px;
-                margin-left: 186px;
-            }
-            .btn_agree {
-                margin-left: 66px !important;
-            }
-        }
-        .box-card {
-            height: 72%;
-            margin: 100px auto;
-        }
-        .user_agree {
-            color: #f0833a;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-        .user_agree:hover {
-            border-bottom: #58d7f7 solid 1px;
-        }
-        .el-dialog__wrapper {
-            .el-dialog {
-                .el-dialog__header {
-                    .el-icon-s-custom {
-                        font-size: 20px;
-                        color: #69b0f8;
-                    }
-                    span {
-                        color: #898a8a;
-                        font-size: 16px;
-                        margin-left: 10px;
-                    }
-                }
-                .el-dialog__body {
-                    .el-pagination {
-                        width: 100%;
-                        height: 100%;
-                        margin-top: 40px;
-                        text-align: center;
-                    }
-                }
-            }
-        }
+.container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  .el-card {
+    width: 30%;
+    height: 54%;
+    margin: 150px auto;
+    background: rgba(53, 113, 249, 0.3);
+    border: none;
+    .el-card__header {
+      div {
+        text-align: center;
+        font-size: 20px;
+        color: #6dddf5;
+        font-weight: 700;
+      }
     }
+    .el-form-item {
+      .el-input--suffix {
+        /deep/ .el-input-group__prepend {
+          background: #1689f4;
+          border: none;
+          font-size: 12px;
+          vertical-align: none;
+          color: #ffffff;
+          padding: 0 16px;
+        }
+        /deep/.el-input__inner {
+          background: rgba(207, 208, 208, 0.3);
+          border: none;
+          color: #ffffff;
+        }
+      }
+      /deep/ .el-checkbox {
+        .el-checkbox__label {
+          color: #ffffff;
+        }
+      }
+    }
+    /deep/ .agree_form {
+      .el-form-item__content {
+        height: 40px;
+        display: flex;
+      }
+    }
+    /deep/ .el-form-item:last-of-type {
+      .el-form-item__label {
+        color: #2b90f6;
+      }
+      .el-form-item__content {
+        .el-radio-group {
+          .el-radio {
+            color: #ffffff;
+          }
+        }
+      }
+      .select_img {
+        width: 100px;
+        margin-left: 120px;
+        padding: 10px 0;
+      }
+    }
+    .spacing {
+      .el-input--suffix {
+        /deep/ .el-input-group__prepend {
+          padding: 0 22px;
+        }
+      }
+    }
+    .el-button {
+      width: 100%;
+      border-radius: 6px;
+    }
+    .user_register {
+      width: 100px;
+      padding: 10px 10px;
+      margin-left: 186px;
+    }
+    .btn_agree {
+      margin-left: 66px !important;
+    }
+  }
+  .box-card {
+    height: 72%;
+    margin: 100px auto;
+  }
+  .user_agree {
+    color: #f0833a;
+    cursor: pointer;
+    margin-left: 10px;
+  }
+  .user_agree:hover {
+    border-bottom: #58d7f7 solid 1px;
+  }
+  .el-dialog__wrapper {
+    .el-dialog {
+      .el-dialog__header {
+        .el-icon-s-custom {
+          font-size: 20px;
+          color: #69b0f8;
+        }
+        span {
+          color: #898a8a;
+          font-size: 16px;
+          margin-left: 10px;
+        }
+      }
+      .el-dialog__body {
+        .el-pagination {
+          width: 100%;
+          height: 100%;
+          margin-top: 40px;
+          text-align: center;
+        }
+      }
+    }
+  }
+}
 </style>
