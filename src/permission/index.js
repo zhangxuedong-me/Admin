@@ -7,6 +7,7 @@ import nprogress from 'nprogress'
 const whiteList = ['/login', '/register'] // 不重定向白名单
 
 router.beforeEach((to, from, next) => {
+  
   // 开启进度条
   nprogress.start()
 

@@ -87,7 +87,7 @@ export default {
           
           this.dialogVisible = true
           this.$message.success(data.message)
-          this.this.isAgree = false
+          this.isAgree = false
           return
         }
 

@@ -7,12 +7,13 @@ import { message, Loading } from 'element-ui'
 
 import { config, loaddingConfig } from '@/utils/config'
 
+export const cancelArr = []
+
 const request = axios.create({
 
   baseURL: `${config.baseURL}${config.prot}`,
   timeout: config.timeout
 })
-
 
 // 请求拦截器
 request.interceptors.request.use(config => {
